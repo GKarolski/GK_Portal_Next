@@ -3,13 +3,17 @@ import Stripe from 'stripe';
 import { headers } from 'next/headers';
 import { supabaseAdmin } from '@/lib/supabaseServer';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
     apiVersion: '2025-02-11' as any,
 });
 
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || 'whsec_placeholder';
 
 export async function POST(req: Request) {
+    if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_WEBHOOK_SECRET) {
+        return new Response('Missing Stripe Secret', { status: 500 });
+    }
+
     const body = await req.text();
     const signature = (await headers()).get('stripe-signature') as string;
 
@@ -44,7 +48,6 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
         .from('organizations')
         .update({
             vip_status: planId === 'AGENCY' ? 'VIP' : 'STANDARD',
-            // We can also store stripe_customer_id if we add the column
         })
         .eq('id', orgId);
 

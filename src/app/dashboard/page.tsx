@@ -19,6 +19,7 @@ import { getCurrentMonthISO } from '@/utils/dateUtils';
 
 import { useAuth } from '@/contexts/AuthContext';
 import { useTickets } from '@/hooks/useTickets';
+import { createTicket } from '@/actions/tickets';
 
 export default function ClientDashboardPage() {
     const { user, isLoading: isAuthLoading } = useAuth();

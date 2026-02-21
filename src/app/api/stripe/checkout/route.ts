@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
     apiVersion: '2025-02-11' as any,
 });
 
@@ -12,6 +12,9 @@ const PRICE_MAP: Record<string, string> = {
 };
 
 export async function POST(req: Request) {
+    if (!process.env.STRIPE_SECRET_KEY) {
+        return NextResponse.json({ error: 'Brak klucza Stripe' }, { status: 500 });
+    }
     try {
         const { planId, organizationId, userEmail } = await req.json();
 
