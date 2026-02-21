@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+:root {
+  --background: 5 5 5;
+  --foreground: 245 245 245;
+}
+
+@layer base {
+  body {
+    @apply bg-gk-950 text-foreground antialiased selection:bg-accent-red/30;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  --color-gk-950: #050505;
+  --color-gk-900: #0a0a0a;
+  --color-gk-800: #171717;
+  --color-gk-700: #262626;
+  --color-gk-glass: rgba(255, 255, 255, 0.05);
+  --color-gk-glass-hover: rgba(255, 255, 255, 0.08);
+
+  --color-accent-red: #ef4444;
+  --color-accent-red-hover: #dc2626;
+  --color-accent-success: #10b981;
+  --color-accent-warning: #f59e0b;
+
+  --radius-3xl: 24px;
+  --radius-xl: 12px;
+
+  --blur-xs: 2px;
+  --blur-xl: 16px;
+}
+
+@layer components {
+  .glass-panel {
+    @apply bg-gk-900/70 backdrop-blur-3xl border border-white/5 shadow-2xl;
+  }
+
+  .glass-card {
+    @apply bg-white/2 backdrop-blur-xl border border-white/5 shadow-md transition-all duration-300 ease-out hover:bg-white/4 hover:border-white/10 hover:-translate-y-0.5 hover:shadow-2xl;
+  }
+
+  .input-cyber {
+    @apply bg-black/30 border border-white/10 text-white transition-all duration-300 focus:border-accent-red focus:ring-4 focus:ring-accent-red/10 outline-none;
+  }
+
+  .btn-primary {
+    @apply bg-accent-red text-white transition-all duration-300 hover:bg-accent-red-hover hover:shadow-[0_0_20px_rgba(239,68,68,0.3)] active:scale-95;
+  }
+}
+
+/* Custom Scrollbar */
+@layer base {
+  ::-webkit-scrollbar {
+    @apply w-1.5 h-1.5;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-gk-900;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gk-700 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-accent-red;
+  }
+}

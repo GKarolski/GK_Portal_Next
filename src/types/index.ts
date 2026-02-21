@@ -1,0 +1,147 @@
+export enum UserRole {
+    ADMIN = 'ADMIN',
+    CLIENT = 'CLIENT'
+}
+
+export interface Attachment {
+    name: string;
+    url: string;
+}
+
+export interface Organization {
+    id: string;
+    name: string;
+    nip?: string;
+    logo?: string;
+    createdAt: string;
+    vipStatus?: boolean;
+    tenant_id?: string;
+}
+
+export interface User {
+    id: string;
+    name: string;
+    email: string;
+    role: UserRole;
+    companyName?: string;
+    organizationId?: string;
+    organizationLogo?: string;
+    roleInOrg?: 'OWNER' | 'MEMBER';
+    isActive: boolean;
+    phone?: string;
+    nip?: string;
+    website?: string;
+    adminNotes?: string;
+    avatar?: string;
+    color?: string;
+    settings?: any;
+    tenant_id?: string;
+}
+
+export interface Ticket {
+    id: string;
+    clientId: string;
+    clientName: string;
+    organization_id?: string;
+    created_by_user_id?: string;
+    subject: string;
+    category: TicketCategory;
+    url?: string;
+    device_type?: DeviceType;
+    platform?: MarketingPlatform;
+    budget?: string;
+    description: string;
+    status: TicketStatus;
+    priority: TicketPriority;
+    price?: number;
+    billing_type?: BillingType;
+    billing_month?: string;
+    internal_notes?: string;
+    public_notes?: string;
+    admin_start_date?: string;
+    admin_deadline?: string;
+    error_date?: string;
+    folder_id?: string;
+    is_hidden_from_client: boolean;
+    created_at: string;
+    subtasks: Subtask[];
+    history_log: HistoryEntry[];
+    attachments: Attachment[];
+    total_duration_seconds?: number;
+    tenant_id: string;
+}
+
+export enum BillingType {
+    FIXED = 'FIXED',
+    HOURLY = 'HOURLY'
+}
+
+export interface WorkSession {
+    id: number;
+    user_id: string;
+    ticket_id: string;
+    start_time: string;
+    end_time?: string;
+    duration_seconds: number;
+    is_active: boolean;
+    note?: string;
+    tenant_id: string;
+}
+
+export enum TicketStatus {
+    REVIEW = 'REVIEW',
+    PENDING = 'PENDING',
+    IN_PROGRESS = 'IN_PROGRESS',
+    DONE = 'DONE',
+}
+
+export enum TicketPriority {
+    LOW = 'LOW',
+    NORMAL = 'NORMAL',
+    HIGH = 'HIGH',
+    URGENT = 'URGENT',
+}
+
+export enum TicketCategory {
+    BUG = 'BUG',
+    MARKETING = 'MARKETING',
+    FEATURE = 'FEATURE',
+    OTHER = 'OTHER',
+}
+
+export enum DeviceType {
+    ALL = 'Wszystkie',
+    DESKTOP = 'Desktop',
+    MOBILE = 'Mobile',
+    TABLET = 'Tablet',
+}
+
+export enum MarketingPlatform {
+    META = 'Meta Ads',
+    GOOGLE = 'Google Ads',
+    TIKTOK = 'TikTok Ads',
+    OTHER = 'Inne',
+}
+
+export interface Subtask {
+    id: string;
+    title: string;
+    isCompleted: boolean;
+    isVisibleToClient: boolean;
+}
+
+export interface HistoryEntry {
+    date: string;
+    content: string;
+}
+
+export interface Folder {
+    id: string;
+    organization_id: string;
+    name: string;
+    icon: string;
+    color: string;
+    automation_rules: any[];
+    created_at: string;
+    tenant_id: string;
+}
