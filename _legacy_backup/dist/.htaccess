@@ -1,0 +1,32 @@
+DirectoryIndex index.php index.html
+
+# Block access to sensitive files
+<FilesMatch "\.(env|sql|log|sh|bak)$|^\.env\.php$">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # 0. Redirect SPA routes that are NOT under /app/ to /app/ prefix
+  RewriteRule ^checkout(.*)$ /app/checkout$1 [R=302,L,QSA]
+  RewriteRule ^provisioning(.*)$ /app/provisioning$1 [R=302,L,QSA]
+
+  # 1. Stop if it's a real file (CSS, JS, API, PHP)
+  RewriteCond %{REQUEST_FILENAME} -f
+  RewriteRule ^ - [L]
+
+  # 2. Let index.php handle the root
+  RewriteRule ^$ index.php [L]
+
+  # 3. SPA routes under /app/ go to /app/index.html (React SPA)
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^app/ /app/index.html [L]
+
+  # 4. All other non-file paths go to index.php (landing page)
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.php [L]
+</IfModule>

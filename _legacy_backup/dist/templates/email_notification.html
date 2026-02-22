@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; line-height: 1.6; }
+        .container { max-width: 600px; margin: 20px auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden; }
+        .header { background: #3b82f6; color: white; padding: 20px; text-align: center; }
+        .content { padding: 30px; }
+        .footer { background: #f9f9f9; padding: 20px; text-align: center; font-size: 12px; color: #777; }
+        .btn { display: inline-block; padding: 12px 25px; background: #3b82f6; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; }
+        .stats { background: #f3f4f6; padding: 15px; border-radius: 5px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Plan Zaktualizowany!</h1>
+        </div>
+        <div class="content">
+            <p>Cześć <strong>{{name}}</strong>,</p>
+            <p>Twój plan w systemie GK Portal SaaS został pomyślnie zaktualizowany do subskrypcji: <strong>{{plan}}</strong>.</p>
+            
+            <div class="stats">
+                <p><strong>Twoje nowe limity:</strong></p>
+                <ul>
+                    <li>Miejsce na dysku: <strong>{{storage}}</strong></li>
+                    <li>Miesięczny limit tokenów AI: <strong>{{tokens}}</strong></li>
+                </ul>
+            </div>
+
+            <p>Wszystkie nowe funkcje i limity są już dostępne na Twoim koncie.</p>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="https://testgkportal.cfolks.pl" class="btn">PRZEJDŹ DO PORTALU</a>
+            </div>
+        </div>
+        <div class="footer">
+            &copy; 2026 GK Digital SaaS. Ten e-mail został wysłany automatycznie.
+        </div>
+    </div>
+</body>
+</html>

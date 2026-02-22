@@ -1,0 +1,9 @@
+# Block direct access to SQL, log, JSON, lock, and backup files
+<FilesMatch "\.(sql|log|json|lock|bak)$">
+    Require all denied
+</FilesMatch>
+
+# Block direct access to include-only PHP files
+<FilesMatch "^(saas_limits|saas_provision|config)\.php$">
+    Require all denied
+</FilesMatch>

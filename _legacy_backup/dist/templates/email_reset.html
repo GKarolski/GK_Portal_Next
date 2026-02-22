@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #ef4444;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e293b;
+        }
+
+        .logo span {
+            color: #ef4444;
+        }
+
+        .content {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: #ef4444;
+            color: #ffffff;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #94a3b8;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">GK_<span>Portal</span></div>
+        </div>
+        <div class="content">
+            <p>Cześć <strong>{{name}}</strong>,</p>
+            <p>Otrzymaliśmy prośbę o zresetowanie hasła do Twojego konta.</p>
+            <p>Kliknij poniższy przycisk, aby ustawić nowe hasło:</p>
+            <div style="text-align: center;">
+                <a href="{{link}}" class="btn">RESETUJ HASŁO</a>
+            </div>
+            <p>Jeśli to nie Ty prosiłeś o reset, zignoruj tę wiadomość.</p>
+        </div>
+        <div class="footer">
+            &copy; 2026 GK Digital. Wszystkie prawa zastrzeżone.
+        </div>
+    </div>
+</body>
+
+</html>

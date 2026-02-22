@@ -1,0 +1,6 @@
+{
+    "require": {
+        "smalot/pdfparser": "^2.6",
+        "stripe/stripe-php": "^19.3"
+    }
+}
