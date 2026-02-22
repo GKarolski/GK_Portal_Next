@@ -208,7 +208,7 @@ export default function ClientDashboardPage() {
                             onOpenTicketDetail={(t) => { setSelectedTicket(t); setIsDetailOpen(true); }}
                             onStatusUpdate={() => { }}
                             onOpenInvoiceGenerator={() => { }}
-                            isAdmin={user.role === 'ADMIN'}
+                            isAdmin={false}
                         />
                     )}
                 </div>
