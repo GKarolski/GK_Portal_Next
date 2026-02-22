@@ -62,7 +62,9 @@ function ProvisioningContent() {
             }, 1000 + Math.random() * 1000);
             return () => clearTimeout(timer);
         } else if (isProvisioned) {
-            setTimeout(() => {
+            setTimeout(async () => {
+                // Force a session refresh to get the new metadata
+                await supabase.auth.refreshSession();
                 router.push('/dashboard');
             }, 1000);
         }

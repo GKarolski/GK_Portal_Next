@@ -94,13 +94,39 @@ export default function ClientDashboardPage() {
 
     const isLoading = isAuthLoading || isTicketsLoading;
 
+    // Guard: Redirect to checkout ONLY if we are sure they don't have an organization
+    const [isCheckingOrg, setIsCheckingOrg] = useState(false);
+
     useEffect(() => {
-        if (!isAuthLoading && user && !user.organizationId) {
-            router.push('/checkout');
-        }
+        const checkOrgStatus = async () => {
+            if (!isAuthLoading && user && !user.organizationId) {
+                setIsCheckingOrg(true);
+                console.log('[DASHBOARD GUARD] Metadata missing org, checking DB...');
+
+                // Double check DB in case metadata is stale (common after provisioning)
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('organization_id')
+                    .eq('id', user.id)
+                    .single();
+
+                if (profile?.organization_id) {
+                    console.log('[DASHBOARD GUARD] Found org in DB, metadata was stale.');
+                    // We could force a reload or just let useTickets use this ID
+                    // For now, let's just wait for a refresh or manually redirect to self to trigger AuthContext refresh
+                    window.location.reload();
+                    return;
+                }
+
+                console.log('[DASHBOARD GUARD] No org in DB either, redirecting to checkout.');
+                router.push('/checkout');
+            }
+        };
+
+        checkOrgStatus();
     }, [user, isAuthLoading, router]);
 
-    if (isAuthLoading) return (
+    if (isAuthLoading || isCheckingOrg) return (
         <div className="h-screen bg-gk-950 flex items-center justify-center">
             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-accent-red"></div>
         </div>

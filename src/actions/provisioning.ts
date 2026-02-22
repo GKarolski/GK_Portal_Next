@@ -42,6 +42,20 @@ export async function provisionInstance(userId: string, companyName: string, pla
 
         if (folderError) throw folderError;
 
+        // 4. Sync Auth Metadata
+        const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(
+            userId,
+            {
+                user_metadata: {
+                    organization_id: org.id,
+                    role: 'ADMIN',
+                    is_active: true
+                }
+            }
+        );
+
+        if (authError) throw authError;
+
         return { success: true, orgId: org.id };
     } catch (error) {
         console.error('Provisioning failed:', error);
