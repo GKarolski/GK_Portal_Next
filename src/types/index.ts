@@ -42,7 +42,10 @@ export interface Ticket {
     id: string;
     clientId: string;
     clientName: string;
+    client_name?: string; // Supabase column
+    organizationId?: string; // Alias
     organization_id?: string;
+    createdByUserId?: string; // Alias
     created_by_user_id?: string;
     subject: string;
     category: TicketCategory;
@@ -55,17 +58,27 @@ export interface Ticket {
     priority: TicketPriority;
     price?: number;
     billing_type?: BillingType;
+    billingType?: BillingType; // Alias
     billing_month?: string;
+    billingMonth?: string; // Alias
     internal_notes?: string;
+    internalNotes?: string; // Alias
     public_notes?: string;
+    publicNotes?: string; // Alias
     admin_start_date?: string;
+    adminStartDate?: string; // Alias
     admin_deadline?: string;
+    adminDeadline?: string; // Alias
     error_date?: string;
+    errorDate?: string; // Alias
     folder_id?: string;
+    folderId?: string; // Alias
     is_hidden_from_client: boolean;
     created_at: string;
+    createdAt?: string; // Alias
     subtasks: Subtask[];
     history_log: HistoryEntry[];
+    historyLog?: HistoryEntry[]; // Alias
     attachments: Attachment[];
     total_duration_seconds?: number;
     tenant_id: string;

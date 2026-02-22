@@ -45,8 +45,8 @@ export const AdminDashboardOverview: React.FC<AdminDashboardOverviewProps> = ({ 
             if (!hasRealData) return months;
 
             doneWithPrice.forEach(ticket => {
-                const ticketDate = (ticket as any).billingMonth
-                    || (ticket as any).billing_month
+                const ticketDate = ticket.billingMonth
+                    || ticket.billing_month
                     || new Date(ticket.created_at).toISOString().substring(0, 7);
 
                 const month = months.find(m => m.key === ticketDate);
@@ -64,7 +64,7 @@ export const AdminDashboardOverview: React.FC<AdminDashboardOverviewProps> = ({ 
     const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
     const currentMonthRevenue = doneWithPrice
         .filter(t => {
-            const ticketDate = (t as any).billingMonth || (t as any).billing_month || new Date(t.created_at).toISOString().substring(0, 7);
+            const ticketDate = t.billingMonth || t.billing_month || new Date(t.created_at).toISOString().substring(0, 7);
             return ticketDate === currentMonthKey;
         })
         .reduce((acc, t) => acc + Number(t.price || 0), 0);

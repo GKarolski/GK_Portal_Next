@@ -180,7 +180,7 @@ const ClientPortal: React.FC<ClientPortalProps> = ({ user }) => {
 
     const filteredTickets = tickets.filter(t => {
         if (categoryFilter !== 'ALL' && t.category !== categoryFilter) return false;
-        if (selectedMemberId && (t as any).created_by_user_id !== selectedMemberId) return false;
+        if (selectedMemberId && t.created_by_user_id !== selectedMemberId) return false;
         return true;
     }).sort((a, b) => {
         if (sortMode === 'PRIORITY') {

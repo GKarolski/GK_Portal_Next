@@ -69,6 +69,19 @@ export const backend = {
         return (data || []).map(t => ({
             ...t,
             clientId: t.created_by_user_id, // legacy support for TicketListView
+            clientName: t.client_name,
+            organizationId: t.organization_id, // alias 
+            createdByUserId: t.created_by_user_id, // alias
+            createdAt: t.created_at,
+            publicNotes: t.public_notes,
+            internalNotes: t.internal_notes,
+            adminStartDate: t.admin_start_date,
+            adminDeadline: t.admin_deadline,
+            errorDate: t.error_date,
+            folderId: t.folder_id,
+            historyLog: t.history_log,
+            billingType: t.billing_type,
+            billingMonth: t.billing_month,
         }));
     },
 
