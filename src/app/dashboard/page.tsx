@@ -23,6 +23,7 @@ import { useTickets } from '@/hooks/useTickets';
 import { createTicket } from '@/actions/tickets';
 
 export default function ClientDashboardPage() {
+    const router = useRouter();
     const { user, isLoading: isAuthLoading } = useAuth();
     const { tickets, isLoading: isTicketsLoading, updateTicketStatus, fetchTickets } = useTickets(user?.organizationId);
 
