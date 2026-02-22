@@ -7,6 +7,13 @@ export async function POST(req: NextRequest) {
         console.log('--- Invitation API Call Started ---');
         console.log('[DEBUG] Server Environment - Key Prefix:', process.env.SUPABASE_SERVICE_ROLE_KEY?.substring(0, 4) || 'NONE');
 
+        if (!process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY === 'placeholder') {
+            console.error('[INVITE] Missing SUPABASE_SERVICE_ROLE_KEY in environment');
+            return NextResponse.json({
+                error: 'Błąd konfiguracji serwera: Brak SUPABASE_SERVICE_ROLE_KEY. Jeśli używasz Vercel, dodaj ten klucz w ustawieniach (Settings -> Environment Variables).'
+            }, { status: 500 });
+        }
+
         // 1. Verify Authorization
         const authHeader = req.headers.get('Authorization');
         if (!authHeader) {
