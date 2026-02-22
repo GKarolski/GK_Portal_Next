@@ -92,33 +92,69 @@ export async function POST(req: NextRequest) {
 
         // 4. Invite User with Metadata
         console.log('[INVITE] Sending Supabase Invitation to:', email);
-        const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
-            data: {
-                name: name,
-                company_name: company,
-                organization_id: targetOrgId,
-                role: 'CLIENT',
-                phone: details?.phone,
-                nip: details?.nip,
-                website: details?.website,
-                admin_notes: details?.adminNotes,
-                avatar_url: details?.avatar,
-                role_in_org: orgId ? 'MEMBER' : 'OWNER'
-            },
-            redirectTo: `${new URL(req.url).origin}/login`
-        });
 
-        if (inviteError) {
-            console.error('[INVITE] Supabase Auth Error:', inviteError);
-            return NextResponse.json({ error: 'Błąd Supabase Auth: ' + inviteError.message }, { status: 500 });
+        let inviteResult;
+        let mailSent = true;
+
+        try {
+            const { data, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
+                data: {
+                    name: name,
+                    company_name: company,
+                    organization_id: targetOrgId,
+                    role: 'CLIENT',
+                    phone: details?.phone,
+                    nip: details?.nip,
+                    website: details?.website,
+                    admin_notes: details?.adminNotes,
+                    avatar_url: details?.avatar,
+                    role_in_org: orgId ? 'MEMBER' : 'OWNER'
+                },
+                redirectTo: `${new URL(req.url).origin}/login`
+            });
+
+            if (error) throw error;
+            inviteResult = data;
+        } catch (inviteError: any) {
+            console.warn('[INVITE] SMTP/Invitation Error, falling back to direct create:', inviteError.message);
+
+            // Fallback: Directly create the user without sending an invite email immediately
+            const { data, error: createError } = await supabaseAdmin.auth.admin.createUser({
+                email: email,
+                password: Math.random().toString(36).slice(-12), // Temporary random password
+                email_confirm: true, // Auto-confirm to ensure it appears in profiles
+                user_metadata: {
+                    name: name,
+                    company_name: company,
+                    organization_id: targetOrgId,
+                    role: 'CLIENT',
+                    phone: details?.phone,
+                    nip: details?.nip,
+                    website: details?.website,
+                    admin_notes: details?.adminNotes,
+                    avatar_url: details?.avatar,
+                    role_in_org: orgId ? 'MEMBER' : 'OWNER'
+                }
+            });
+
+            if (createError) {
+                console.error('[INVITE] Direct Create Fallback failed:', createError);
+                // If the user already exists, we might want to just link them, but for now let's return the error
+                return NextResponse.json({ error: 'Błąd podczas tworzenia użytkownika: ' + createError.message }, { status: 500 });
+            }
+
+            inviteResult = data;
+            mailSent = false;
         }
 
-        console.log('[INVITE] Invitation successful for:', email, 'User ID:', inviteData.user.id);
+        console.log('[INVITE] Client operational. Mail sent:', mailSent, 'User ID:', inviteResult.user.id);
 
         return NextResponse.json({
             success: true,
             orgId: targetOrgId,
-            userId: inviteData.user.id
+            userId: inviteResult.user.id,
+            mailSent: mailSent,
+            message: mailSent ? 'Zaproszenie wysłane pomyślnie.' : 'Klient został utworzony pomyślnie, ale wystąpił problem z wysyłką e-maila zapraszającego (prawdopodobnie limity serwera). Klient jest już widoczny na liście.'
         });
 
     } catch (error: any) {

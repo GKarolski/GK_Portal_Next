@@ -26,6 +26,8 @@ export const InviteClientModal: React.FC<InviteClientModalProps> = ({ isOpen, on
     const [avatar, setAvatar] = useState<string | null>(null);
     const [showDetails, setShowDetails] = useState(false);
     const [isSent, setIsSent] = useState(false);
+    const [mailSent, setMailSent] = useState(true);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [isSending, setIsSending] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -40,6 +42,8 @@ export const InviteClientModal: React.FC<InviteClientModalProps> = ({ isOpen, on
         setAvatar(null);
         setShowDetails(false);
         setIsSent(false);
+        setMailSent(true);
+        setSuccessMessage(null);
         setError(null);
     }, [isOpen, initialCompany]);
 
@@ -48,9 +52,11 @@ export const InviteClientModal: React.FC<InviteClientModalProps> = ({ isOpen, on
         setIsSending(true);
         setError(null);
         try {
-            await backend.inviteClient(name, email, company, inviteOrganizationId || undefined, {
+            const result = await backend.inviteClient(name, email, company, inviteOrganizationId || undefined, {
                 nip, phone, website, adminNotes: notes, avatar: avatar || undefined
             });
+            setMailSent(result.mailSent !== false);
+            setSuccessMessage(result.message || null);
             setIsSent(true);
         } catch (err: any) {
             console.error(err);
@@ -64,8 +70,15 @@ export const InviteClientModal: React.FC<InviteClientModalProps> = ({ isOpen, on
         <Modal isOpen={isOpen} onClose={onClose} title={inviteOrganizationId ? `Dodaj Pracownika do ${initialCompany}` : "Zaproś Nowego Klienta"}>
             {isSent ? (
                 <div className="text-center py-6">
-                    <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-green-500"><CheckCircle size={32} /></div>
-                    <h2 className="text-lg font-bold text-white mb-2">Zaproszenie Wysłane!</h2>
+                    <div className={`w-16 h-16 ${mailSent ? 'bg-green-500/20 text-green-500' : 'bg-yellow-500/20 text-yellow-500'} rounded-full flex items-center justify-center mx-auto mb-4`}>
+                        {mailSent ? <CheckCircle size={32} /> : <Send size={32} className="opacity-50" />}
+                    </div>
+                    <h2 className="text-lg font-bold text-white mb-2">
+                        {mailSent ? 'Zaproszenie Wysłane!' : 'Klient Utworzony'}
+                    </h2>
+                    <p className="text-slate-400 text-sm mb-6 max-w-xs mx-auto">
+                        {successMessage || 'Klient został pomyślnie dodany do systemu.'}
+                    </p>
                     <Button onClick={() => { onClose(); if (onSuccess) onSuccess(); }}>Zamknij</Button>
                 </div>
             ) : (
