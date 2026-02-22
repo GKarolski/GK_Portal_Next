@@ -24,6 +24,7 @@ export default function RegisterPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    const [fullName, setFullName] = useState('');
     const [company, setCompany] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -38,6 +39,7 @@ export default function RegisterPage() {
             password,
             options: {
                 data: {
+                    full_name: fullName,
                     company_name: company,
                     role: 'CLIENT',
                 },
@@ -77,10 +79,22 @@ export default function RegisterPage() {
                 <Card className="p-8 md:p-10 border-white/5 bg-white/2 backdrop-blur-2xl">
                     <div className="text-center mb-8">
                         <h1 className="text-2xl font-bold text-white mb-2">Rozpocznij tutaj.</h1>
-                        <p className="text-sm text-slate-500">Krok 1: Skonfiguruj identyfikator organizacji.</p>
+                        <p className="text-sm text-slate-500">Krok 1: Skonfiguruj dane Twojego konta.</p>
                     </div>
 
                     <form onSubmit={handleRegister} className="space-y-5">
+                        <div className="relative">
+                            <Input
+                                label="Imię i Nazwisko"
+                                required
+                                placeholder="Jan Kowalski"
+                                className="pl-10"
+                                value={fullName}
+                                onChange={(e) => setFullName(e.target.value)}
+                            />
+                            <ShieldCheck className="absolute left-3 bottom-3 w-4 h-4 text-slate-500" />
+                        </div>
+
                         <div className="relative">
                             <Input
                                 label="Nazwa Organizacji"
@@ -126,7 +140,7 @@ export default function RegisterPage() {
                         )}
 
                         <Button type="submit" isLoading={isLoading} className="w-full h-12 mt-4">
-                            Przejdź do wyboru pakietu <ArrowRight className="w-4 h-4 ml-2" />
+                            Zarejestruj się bezpłatnie <ArrowRight className="w-4 h-4 ml-2" />
                         </Button>
                     </form>
 
