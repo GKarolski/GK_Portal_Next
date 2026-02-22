@@ -14,9 +14,9 @@ export async function POST(req: Request) {
 
         // 1. Resolve Price ID
         const priceMap: Record<string, string> = {
-            'STARTER': 'price_1T0KsDJQcFY2PeiP4hMVVXYa',
-            'STANDARD': 'price_1T0KsvJQcFY2PeiPZ6qPTWyO',
-            'AGENCY': 'price_1T0KtIJQcFY2PeiPZzKgAamL'
+            'STARTER': 'price_1T2uHHJQcFY2PeiPuSLNImIK',
+            'STANDARD': 'price_1T2uJKJQcFY2PeiPqdpnw4tg',
+            'AGENCY': 'price_1T2uMFJQcFY2PeiPEcCqha2w'
         };
 
         const priceId = priceMap[planId.toUpperCase()] || priceMap.STANDARD;
