@@ -4,7 +4,7 @@ import { supabaseAdmin } from '@/lib/supabaseServer';
 
 // Set Stripe API version to match legacy if possible, or at least be explicit
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: '2023-10-16',
+    apiVersion: '2023-10-16' as any,
 });
 
 export async function POST(req: Request) {
