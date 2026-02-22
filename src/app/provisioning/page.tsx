@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Database, Server, Globe, Shield, CheckCircle2, Loader2, Sparkles } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 
 import { supabase } from '@/lib/supabase';
 import { provisionInstance } from '@/actions/provisioning';
