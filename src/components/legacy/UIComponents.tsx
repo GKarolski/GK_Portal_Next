@@ -112,6 +112,30 @@ export const CategoryBadge: React.FC<{ category: TicketCategory }> = ({ category
     );
 };
 
+export const Badge: React.FC<{ children: React.ReactNode, className?: string, variant?: 'default' | 'blue' | 'emerald' | 'amber' | 'red' | 'indigo' | 'purple' }> = ({ children, className = '', variant = 'default' }) => {
+    const variants: Record<string, string> = {
+        default: "bg-white/5 text-slate-400 border-white/10",
+        blue: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+        emerald: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+        amber: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+        red: "bg-red-500/10 text-red-400 border-red-500/20",
+        indigo: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
+        purple: "bg-purple-500/10 text-purple-400 border-purple-500/20",
+        // Category Mappings
+        BUG: "bg-red-500/10 text-red-400 border-red-500/20",
+        FEATURE: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+        MARKETING: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
+        GENERAL: "bg-slate-500/10 text-slate-400 border-slate-500/20",
+        DESIGN: "bg-purple-500/10 text-purple-400 border-purple-500/20",
+        SALES: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+    };
+    return (
+        <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-tighter border ${variants[variant] || variants.default} ${className}`}>
+            {children}
+        </span>
+    );
+};
+
 // --- MODAL ---
 export const Modal: React.FC<{ isOpen: boolean, onClose: () => void, title: string, children: React.ReactNode }> = ({ isOpen, onClose, title, children }) => {
     useEffect(() => {
