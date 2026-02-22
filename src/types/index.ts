@@ -145,3 +145,37 @@ export interface Folder {
     created_at: string;
     tenant_id: string;
 }
+export interface AdminSettings {
+    contactName: string;
+    contactEmail: string;
+    contactPhone: string;
+    popupNote: string;
+    avatar?: string;
+}
+
+export interface NewTicketPayload {
+    category: TicketCategory;
+    subject: string;
+    description: string;
+    priority: TicketPriority;
+    errorDate?: string;
+    url?: string;
+    deviceType?: DeviceType;
+    platform?: MarketingPlatform;
+    budget?: string;
+    price?: number;
+    adminDeadline?: string;
+    adminStartDate?: string;
+    internalNotes?: string;
+    initialSubtasks?: string[];
+    subtasks?: Subtask[];
+    attachments?: Attachment[];
+    billingMonth?: string;
+}
+
+export interface AutomationRule {
+    id: string;
+    folderId: string;
+    type: 'FROM_USER' | 'KEYWORD' | 'CATEGORY';
+    value: string;
+}
