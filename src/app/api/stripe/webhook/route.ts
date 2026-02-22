@@ -40,9 +40,9 @@ export async function POST(req: Request) {
                 session.subscription as string
             );
         } else if (event.type === 'invoice.payment_succeeded') {
-            const invoice = event.data.object as Stripe.Invoice;
+            const invoice = event.data.object as any;
             // Only handle first payment for subscription
-            if (invoice.billing_reason === 'subscription_create') {
+            if (invoice.billing_reason === 'subscription_create' && invoice.subscription) {
                 const subscription = await stripe.subscriptions.retrieve(invoice.subscription as string);
                 await handleProvisioning(
                     subscription.metadata?.userId,
