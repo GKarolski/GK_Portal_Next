@@ -41,7 +41,7 @@ export default function RegisterPage() {
                 data: {
                     full_name: fullName,
                     company_name: company,
-                    role: 'CLIENT',
+                    role: 'ADMIN',
                 },
             },
         });
@@ -50,8 +50,10 @@ export default function RegisterPage() {
             setError(error.message);
             setIsLoading(false);
         } else {
-            // Typically redirects to a "check email" or directly to next step
-            router.push('/login?status=success');
+            // Get selected plan from URL or default to STARTER
+            const params = new URLSearchParams(window.location.search);
+            const plan = params.get('plan') || 'STARTER';
+            router.push(`/checkout?plan=${plan}`);
         }
     };
 

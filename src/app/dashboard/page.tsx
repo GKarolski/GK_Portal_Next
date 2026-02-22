@@ -131,7 +131,7 @@ export default function ClientDashboardPage() {
                     onOpenCreateModal={() => setIsModalOpen(true)}
                     categoryFilter={categoryFilter}
                     setCategoryFilter={setCategoryFilter}
-                    isAdmin={false}
+                    isAdmin={user.role === 'ADMIN'}
                     showMenuButton={true}
                 />
 
@@ -168,7 +168,7 @@ export default function ClientDashboardPage() {
                             onOpenTicketDetail={(t) => { setSelectedTicket(t); setIsDetailOpen(true); }}
                             onStatusUpdate={() => { }}
                             onOpenInvoiceGenerator={() => { }}
-                            isAdmin={false}
+                            isAdmin={user.role === 'ADMIN'}
                         />
                     )}
                 </div>
