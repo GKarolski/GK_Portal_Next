@@ -14,6 +14,9 @@ const plans = {
 };
 
 import { useAuth } from '@/contexts/AuthContext';
+import { CheckoutForm } from '@/components/stripe/CheckoutForm';
+import StripeContainer from '@/components/stripe/StripeContainer';
+import { Loader2, Lock } from 'lucide-react';
 
 function CheckoutContent() {
     const router = useRouter();
@@ -22,33 +25,43 @@ function CheckoutContent() {
     const planKey = (searchParams.get('plan') || 'STARTER').toUpperCase() as keyof typeof plans;
     const plan = plans[planKey] || plans.STARTER;
 
-    const [isLoading, setIsLoading] = useState(false);
+    const [clientSecret, setClientSecret] = useState<string | null>(null);
+    const [publishableKey, setPublishableKey] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const [isInitLoading, setIsInitLoading] = useState(true);
 
-    const handlePayment = async () => {
-        setIsLoading(true);
-        try {
-            const response = await fetch('/api/checkout', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    planId: planKey,
-                    email: user?.email
-                }),
-            });
+    useEffect(() => {
+        if (!user) return;
 
-            const data = await response.json();
-            if (data.url) {
-                window.location.href = data.url;
-            } else {
-                alert(data.error || 'Błąd podczas inicjowania płatności.');
-                setIsLoading(false);
+        const initCheckout = async () => {
+            try {
+                const response = await fetch('/api/stripe/create-subscription', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        planId: planKey,
+                        email: user.email,
+                        userId: user.id
+                    }),
+                });
+
+                const data = await response.json();
+                if (data.clientSecret) {
+                    setClientSecret(data.clientSecret);
+                    setPublishableKey(data.publishableKey);
+                } else {
+                    setError(data.error || 'Błąd inicjalizacji płatności.');
+                }
+            } catch (err) {
+                console.error('Checkout init error:', err);
+                setError('Wystąpił błąd podczas łączenia z bramką płatniczą.');
+            } finally {
+                setIsInitLoading(false);
             }
-        } catch (error) {
-            console.error('Payment error:', error);
-            alert('Wystąpił nieoczekiwany błąd płatności.');
-            setIsLoading(false);
-        }
-    };
+        };
+
+        initCheckout();
+    }, [user, planKey]);
 
     return (
         <div className="min-h-screen bg-gk-950 text-white flex flex-col items-center justify-center p-6 relative overflow-hidden">
@@ -91,50 +104,36 @@ function CheckoutContent() {
                     </div>
                 </div>
 
-                {/* Simulated Payment UI */}
-                <Card className="p-8 border-white/10 bg-black/40 backdrop-blur-2xl shadow-2xl">
-                    <h2 className="text-lg font-bold mb-6 flex items-center gap-2">
-                        <CreditCard size={20} className="text-accent-red" /> Formy Płatności
-                    </h2>
+                {/* Stripe Elements UI */}
+                <Card className="p-8 border-white/10 bg-black/40 backdrop-blur-2xl shadow-2xl relative min-h-[400px] flex flex-col justify-center">
+                    {/* Form Glow */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] bg-accent-red/5 blur-[80px] rounded-full pointer-events-none"></div>
 
-                    <div className="space-y-4 mb-8">
-                        <div className="p-4 rounded-xl border border-accent-red bg-accent-red/5 flex items-center justify-between cursor-pointer group">
-                            <div className="flex items-center gap-4">
-                                <div className="w-10 h-6 bg-slate-800 rounded flex items-center justify-center font-bold text-[10px] text-white">VISA</div>
-                                <span className="text-sm font-medium">Karta Płatnicza</span>
+                    {error ? (
+                        <div className="text-center p-6 space-y-4 relative z-10">
+                            <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center mx-auto text-red-500">
+                                <Lock size={24} />
                             </div>
-                            <div className="w-4 h-4 rounded-full border-2 border-accent-red flex items-center justify-center">
-                                <div className="w-2 h-2 rounded-full bg-accent-red"></div>
+                            <h3 className="font-bold text-lg">Błąd Płatności</h3>
+                            <p className="text-sm text-red-400/80">{error}</p>
+                            <Button variant="secondary" onClick={() => window.location.reload()} className="w-full">Spróbuj Ponownie</Button>
+                        </div>
+                    ) : (isInitLoading || !clientSecret || !publishableKey) ? (
+                        <div className="flex flex-col items-center justify-center gap-4 relative z-10">
+                            <Loader2 className="animate-spin text-accent-red" size={40} />
+                            <p className="text-slate-500 text-[10px] tracking-[0.2em] uppercase font-bold animate-pulse">Inicjowanie bezpiecznego połączenia...</p>
+                        </div>
+                    ) : (
+                        <div className="relative z-10">
+                            <div className="mb-8">
+                                <h3 className="text-xl font-bold text-white mb-1">Dane płatności</h3>
+                                <p className="text-slate-500 text-sm">Wprowadź dane karty i aktywuj subskrypcję.</p>
                             </div>
+                            <StripeContainer clientSecret={clientSecret} publishableKey={publishableKey}>
+                                <CheckoutForm planId={planKey} />
+                            </StripeContainer>
                         </div>
-
-                        <div className="p-4 rounded-xl border border-white/5 hover:bg-white/5 flex items-center justify-between cursor-pointer group transition-colors">
-                            <div className="flex items-center gap-4">
-                                <div className="w-10 h-6 bg-blue-600 rounded flex items-center justify-center font-bold text-[8px] text-white italic">PayPal</div>
-                                <span className="text-sm font-medium text-slate-400 group-hover:text-white transition-colors">PayPal</span>
-                            </div>
-                            <div className="w-4 h-4 rounded-full border-2 border-white/10"></div>
-                        </div>
-                    </div>
-
-                    <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-1.5 font-mono text-[10px] uppercase text-slate-500">Kwit płatności: <span className="text-white">Nowa Instancja</span></div>
-                            <div className="space-y-1.5 font-mono text-[10px] uppercase text-slate-500 text-right">Waluta: <span className="text-white">PLN</span></div>
-                        </div>
-
-                        <Button
-                            onClick={handlePayment}
-                            isLoading={isLoading}
-                            className="w-full h-14 bg-accent-red hover:bg-accent-redHover text-lg font-bold shadow-[0_0_25px_rgba(239,68,68,0.4)]"
-                        >
-                            Aktywuj System & Setup <Zap className="w-5 h-5 ml-2 fill-white" />
-                        </Button>
-                    </div>
-
-                    <p className="mt-6 text-[10px] text-slate-600 text-center leading-relaxed">
-                        Klikając "Aktywuj System", zgadzasz się na regulamin świadczenia usług drogą elektroniczną. Subskrypcja może być anulowana w dowolnym momencie.
-                    </p>
+                    )}
                 </Card>
             </motion.div>
         </div>
