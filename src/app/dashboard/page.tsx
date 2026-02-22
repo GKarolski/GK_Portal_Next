@@ -21,6 +21,7 @@ import { getCurrentMonthISO } from '@/utils/dateUtils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTickets } from '@/hooks/useTickets';
 import { createTicket } from '@/actions/tickets';
+import { supabase } from '@/lib/supabase';
 
 export default function ClientDashboardPage() {
     const router = useRouter();
