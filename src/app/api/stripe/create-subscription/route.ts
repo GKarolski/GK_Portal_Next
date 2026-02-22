@@ -74,7 +74,7 @@ export async function POST(req: Request) {
             console.log('[STRIPE DEBUG] Refetching invoice manually:', invoiceId);
             const refetchedInvoice = await stripe.invoices.retrieve(invoiceId, {
                 expand: ['payment_intent']
-            });
+            }) as any;
             if (typeof refetchedInvoice.payment_intent === 'object') {
                 paymentIntent = refetchedInvoice.payment_intent as Stripe.PaymentIntent;
             }
