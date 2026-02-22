@@ -171,7 +171,7 @@ export default function ClientDashboardPage() {
                     onOpenCreateModal={() => setIsModalOpen(true)}
                     categoryFilter={categoryFilter}
                     setCategoryFilter={setCategoryFilter}
-                    isAdmin={user.role === 'ADMIN'}
+                    isAdmin={false}
                     showMenuButton={true}
                 />
 
