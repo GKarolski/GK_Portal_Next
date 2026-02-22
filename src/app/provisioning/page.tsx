@@ -16,7 +16,7 @@ const steps = [
     { id: 'done', label: 'Finalizacja konfiguracji...', icon: Sparkles }
 ];
 
-export default function ProvisioningPage() {
+function ProvisioningContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [currentStep, setCurrentStep] = useState(0);
@@ -161,5 +161,17 @@ export default function ProvisioningPage() {
                 </motion.p>
             </div>
         </div>
+    );
+}
+
+export default function ProvisioningPage() {
+    return (
+        <Suspense fallback={
+            <div className="h-screen bg-[#050505] flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-accent-red"></div>
+            </div>
+        }>
+            <ProvisioningContent />
+        </Suspense>
     );
 }

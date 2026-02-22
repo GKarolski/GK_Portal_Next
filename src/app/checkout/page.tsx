@@ -13,7 +13,7 @@ const plans = {
     AGENCY: { name: 'Agency', price: '259 zł', features: ['∞ Adminów', '∞ Klientów', '100 GB', 'Support 24/7'] }
 };
 
-export default function CheckoutPage() {
+function CheckoutContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const planKey = (searchParams.get('plan') || 'STARTER').toUpperCase() as keyof typeof plans;
@@ -117,5 +117,17 @@ export default function CheckoutPage() {
                 </Card>
             </motion.div>
         </div>
+    );
+}
+
+export default function CheckoutPage() {
+    return (
+        <Suspense fallback={
+            <div className="h-screen bg-gk-950 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-accent-red"></div>
+            </div>
+        }>
+            <CheckoutContent />
+        </Suspense>
     );
 }
