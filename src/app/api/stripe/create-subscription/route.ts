@@ -9,8 +9,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export async function POST(req: Request) {
     try {
-        const { planId, email, userId } = await req.json();
-        console.log('[STRIPE DEBUG] Received:', { planId, email, userId });
+        const { planId, email, userId, companyName } = await req.json();
+        console.log('[STRIPE DEBUG] Received:', { planId, email, userId, companyName });
 
         if (!userId || !email) {
             return NextResponse.json({ error: 'Brak danych użytkownika w żądaniu.' }, { status: 400 });
@@ -48,7 +48,7 @@ export async function POST(req: Request) {
             payment_behavior: 'default_incomplete',
             payment_settings: { save_default_payment_method: 'on_subscription' },
             expand: ['latest_invoice.payment_intent'],
-            metadata: { userId, planId }
+            metadata: { userId, planId, companyName: companyName || '' }
         });
 
         console.log('[STRIPE DEBUG] Subscription status:', subscription.status);

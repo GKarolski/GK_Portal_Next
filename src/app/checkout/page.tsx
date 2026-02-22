@@ -41,7 +41,8 @@ function CheckoutContent() {
                     body: JSON.stringify({
                         planId: planKey,
                         email: user.email,
-                        userId: user.id
+                        userId: user.id,
+                        companyName: user.companyName
                     }),
                 });
 

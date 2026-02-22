@@ -4,7 +4,7 @@ import { headers } from 'next/headers';
 import { supabaseAdmin } from '@/lib/supabaseServer';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
-    apiVersion: '2025-02-11' as any,
+    apiVersion: '2023-10-16' as any,
 });
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || 'whsec_placeholder';
@@ -15,7 +15,8 @@ export async function POST(req: Request) {
     }
 
     const body = await req.text();
-    const signature = (await headers()).get('stripe-signature') as string;
+    const headersList = await headers();
+    const signature = headersList.get('stripe-signature') as string;
 
     let event: Stripe.Event;
 
@@ -26,36 +27,90 @@ export async function POST(req: Request) {
         return new Response(`Webhook Error: ${err.message}`, { status: 400 });
     }
 
-    // Handle the event
-    if (event.type === 'checkout.session.completed') {
-        const session = event.data.object as Stripe.Checkout.Session;
-        await handleCheckoutCompleted(session);
+    console.log(`[STRIPE WEBHOOK] Handling event: ${event.type}`);
+
+    try {
+        if (event.type === 'checkout.session.completed') {
+            const session = event.data.object as Stripe.Checkout.Session;
+            await handleProvisioning(
+                session.metadata?.userId || session.client_reference_id,
+                session.metadata?.plan_id,
+                session.metadata?.companyName,
+                session.customer as string,
+                session.subscription as string
+            );
+        } else if (event.type === 'invoice.payment_succeeded') {
+            const invoice = event.data.object as Stripe.Invoice;
+            // Only handle first payment for subscription
+            if (invoice.billing_reason === 'subscription_create') {
+                const subscription = await stripe.subscriptions.retrieve(invoice.subscription as string);
+                await handleProvisioning(
+                    subscription.metadata?.userId,
+                    subscription.metadata?.plan_id,
+                    subscription.metadata?.companyName,
+                    subscription.customer as string,
+                    subscription.id
+                );
+            }
+        }
+    } catch (err: any) {
+        console.error(`[STRIPE WEBHOOK ERROR]: ${err.message}`);
+        return new Response(`Provisioning Error: ${err.message}`, { status: 500 });
     }
 
     return NextResponse.json({ received: true });
 }
 
-async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
-    const orgId = session.metadata?.organization_id;
-    const planId = session.metadata?.plan_id;
-    const stripeCustomerId = session.customer as string;
-    const stripeSubscriptionId = session.subscription as string;
+async function handleProvisioning(
+    userId: string | undefined,
+    planId: string | undefined,
+    companyName: string | undefined,
+    stripeCustomerId: string,
+    stripeSubscriptionId: string
+) {
+    if (!userId) {
+        console.error('[STRIPE WEBHOOK] Missing userId in metadata');
+        return;
+    }
 
-    if (!orgId) return;
+    console.log(`[STRIPE WEBHOOK] Provisioning for User: ${userId}, Plan: ${planId}, Company: ${companyName}`);
 
-    // Update Organization and Limits in Supabase
-    const { error } = await supabaseAdmin
+    // 1. Create Organization
+    const { data: org, error: orgError } = await supabaseAdmin
         .from('organizations')
-        .update({
+        .insert({
+            name: companyName || 'Moja Organizacja',
             vip_status: planId === 'AGENCY' ? 'VIP' : 'STANDARD',
         })
-        .eq('id', orgId);
+        .select()
+        .single();
 
-    // Update Profile to active
-    await supabaseAdmin
+    if (orgError) throw orgError;
+
+    // 2. Update Profile to active and link to Organization
+    const { error: profileError } = await supabaseAdmin
         .from('profiles')
-        .update({ is_active: true })
-        .eq('organization_id', orgId);
+        .update({
+            organization_id: org.id,
+            is_active: true,
+            role: 'ADMIN' // Full owner of the instance
+        })
+        .eq('id', userId);
 
-    console.log(`Organization ${orgId} activated on plan ${planId}`);
+    if (profileError) throw profileError;
+
+    // 3. Update Auth Metadata (for AuthContext/Frontend)
+    const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(
+        userId,
+        {
+            user_metadata: {
+                organization_id: org.id,
+                role: 'ADMIN'
+            }
+        }
+    );
+
+    if (authError) throw authError;
+
+    console.log(`[STRIPE WEBHOOK] SUCCESS: Organization ${org.id} activated for User ${userId}`);
 }
