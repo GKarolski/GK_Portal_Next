@@ -57,7 +57,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ user }) => {
         try {
             const [tData, cData] = await Promise.all([
                 backend.getTickets(user, currentMonth),
-                backend.getClients()
+                backend.getClients(user.organizationId!)
             ]);
             setTickets(tData);
             setClients(cData);
@@ -149,6 +149,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ user }) => {
                     categoryFilter={categoryFilter}
                     setCategoryFilter={setCategoryFilter as any}
                     isAdmin={true}
+                    onToggleAi={() => setIsAiSidebarOpen(!isAiSidebarOpen)}
                 />
 
                 <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">

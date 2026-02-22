@@ -60,7 +60,7 @@ export const AISidebar: React.FC<AISidebarProps> = ({ isOpen, onClose, contextDa
 
         setLoadingFiles(true);
         try {
-            const files = await backend.getClientDocuments(clientId !== 'ALL' ? clientId : undefined);
+            const files = await backend.getClientDocuments(clientId !== 'ALL' ? clientId : (currentUser?.organizationId || ''));
             setClientFiles(files);
         } catch (error) {
             console.error("Failed to fetch client files:", error);

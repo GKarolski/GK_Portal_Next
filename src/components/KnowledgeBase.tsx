@@ -61,7 +61,7 @@ export const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({ user, clients = []
     const fetchVault = async () => {
         setLoading(true);
         try {
-            const data = await backend.getClientDocuments(activeClientId !== 'ALL' ? activeClientId : undefined);
+            const data = await backend.getClientDocuments(activeClientId !== 'ALL' ? activeClientId : user.organizationId!);
             if (Array.isArray(data)) {
                 setVaultFiles(data);
             } else {
@@ -77,7 +77,7 @@ export const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({ user, clients = []
     const fetchSops = async () => {
         setLoading(true);
         try {
-            const data = await backend.getSops();
+            const data = await backend.getSops(user.organizationId!);
             setSops(data);
         } catch (error) {
             console.error("Failed to fetch SOPs", error);

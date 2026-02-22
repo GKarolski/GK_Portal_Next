@@ -53,12 +53,10 @@ export const backend = {
             .select('*')
             .order('created_at', { ascending: false });
 
-        if (user.role === 'CLIENT') {
-            query = query.eq('organization_id', user.organizationId);
-        }
+        // Strict Multi-tenancy: Filter by organizationId
+        query = query.eq('organization_id', user.organizationId);
 
         if (month) {
-            // Simplified month filtering: assume billing_month is YYYY-MM
             query = query.eq('billing_month', month);
         }
 
@@ -206,12 +204,12 @@ export const backend = {
         }));
     },
 
-    getClients: async (): Promise<User[]> => {
-        // Super Admin view: List all unique owners of organizations
+    getClients: async (orgId: string): Promise<User[]> => {
+        // Filter profiles by the specific organization_id of the tenant
         const { data, error } = await supabase
             .from('profiles')
             .select('*')
-            .eq('role', 'ADMIN'); // In this context, ADMIN = Instance Owner
+            .eq('organization_id', orgId);
 
         if (error) throw error;
         return data.map(p => ({
@@ -356,8 +354,11 @@ export const backend = {
     },
 
     // --- SOPS ---
-    getSops: async (category?: string) => {
-        let query = supabase.from('sops').select('*').order('created_at', { ascending: false });
+    getSops: async (orgId: string, category?: string) => {
+        let query = supabase.from('sops')
+            .select('*')
+            .eq('organization_id', orgId)
+            .order('created_at', { ascending: false });
         if (category) query = query.eq('category', category);
         const { data, error } = await query;
         if (error) throw error;
@@ -381,10 +382,12 @@ export const backend = {
     },
 
     // --- DOCUMENTS ---
-    async getClientDocuments(orgId?: string) {
-        let query = supabase.from('client_documents').select('*');
-        if (orgId) query = query.eq('organization_id', orgId);
-        const { data } = await query.order('created_at', { ascending: false });
+    async getClientDocuments(orgId: string) {
+        let query = supabase.from('client_documents')
+            .select('*')
+            .eq('organization_id', orgId)
+            .order('created_at', { ascending: false });
+        const { data } = await query;
         return data || [];
     },
 
