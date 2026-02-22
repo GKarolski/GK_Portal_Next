@@ -28,6 +28,9 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ user }) => {
     const [activeFolderId, setActiveFolderId] = useState<string | null>(null);
     const [categoryFilter, setCategoryFilter] = useState<'ALL' | TicketCategory>('ALL');
     const [currentMonth, setCurrentMonth] = useState(new Date().toISOString().slice(0, 7));
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isAiSidebarOpen, setIsAiSidebarOpen] = useState(false);
+    const [sortMode, setSortMode] = useState<'DATE' | 'PRIORITY' | 'STATUS'>('DATE');
 
     // Data State
     const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -111,31 +114,46 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ user }) => {
     return (
         <div className="flex h-screen bg-gk-950 overflow-hidden font-sans">
             <AdminSidebar
-                user={user}
-                viewMode={viewMode}
-                setViewMode={setViewMode}
+                clients={clients}
+                selectedClientId={selectedClientId}
+                setSelectedClientId={setSelectedClientId}
+                folders={folders}
+                activeFolderId={activeFolderId}
+                setActiveFolderId={setActiveFolderId}
+                onManageFolders={() => setIsFolderManagerOpen(true)}
+                onAddFolder={() => setIsFolderManagerOpen(true)}
+                onEditFolder={(id) => { setActiveFolderId(id); setIsFolderManagerOpen(true); }}
+                isSidebarOpen={isSidebarOpen}
+                setIsSidebarOpen={setIsSidebarOpen}
+                onInviteClient={() => setIsInviteModalOpen(true)}
                 onOpenSettings={() => setIsSettingsOpen(true)}
+                onAddMember={(orgId, companyName) => { }} // Logic can be added later
+                onOpenClientCard={(client) => setIsClientCardOpen(client)}
+                onEditClient={(client) => setIsEditClientOpen(client)}
+                onDeleteClient={async (id) => { if (confirm("Usunąć klienta?")) await backend.deleteTicket(id); loadInitialData(); }}
             />
 
             <main className="flex-1 flex flex-col relative overflow-hidden">
                 <DashboardHeader
-                    viewMode={viewMode}
-                    setViewMode={setViewMode}
-                    clients={clients}
                     selectedClientId={selectedClientId}
-                    setSelectedClientId={setSelectedClientId}
-                    categoryFilter={categoryFilter}
-                    setCategoryFilter={setCategoryFilter}
+                    clients={clients}
+                    isSidebarOpen={isSidebarOpen}
+                    setIsSidebarOpen={setIsSidebarOpen}
                     currentMonth={currentMonth}
                     setCurrentMonth={setCurrentMonth}
-                    onInviteClient={() => setIsInviteModalOpen(true)}
-                    onCreateTicket={() => setIsCreateTicketOpen(true)}
-                    onOpenKnowledge={() => setViewMode('knowledge')}
+                    sortMode={sortMode}
+                    setSortMode={setSortMode}
+                    viewMode={viewMode}
+                    setViewMode={setViewMode}
+                    onOpenCreateModal={() => setIsCreateTicketOpen(true)}
+                    categoryFilter={categoryFilter}
+                    setCategoryFilter={setCategoryFilter as any}
+                    isAdmin={true}
                 />
 
                 <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
                     {viewMode === 'knowledge' ? (
-                        <KnowledgeBase user={user} organizationId={selectedClientId === 'ALL' ? undefined : selectedClientId} />
+                        <KnowledgeBase user={user} clients={clients} selectedClientId={selectedClientId} />
                     ) : selectedClientId === 'ALL' && viewMode === 'dashboard' ? (
                         <AdminDashboardOverview
                             tickets={tickets}
@@ -168,7 +186,21 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ user }) => {
                 </div>
             </main>
 
-            <AISidebar user={user} tickets={tickets} onOpenTicket={setSelectedTicket} />
+            <AISidebar
+                isOpen={isAiSidebarOpen}
+                onClose={() => setIsAiSidebarOpen(false)}
+                contextData={{
+                    tickets: tickets,
+                    clients: clients,
+                    revenue: 0, // Simplified for now
+                    month: currentMonth,
+                    selectedTicket: selectedTicket,
+                    activeClientId: selectedClientId
+                }}
+                onAction={(action) => {
+                    if (action.type === 'REFRESH_DATA') loadInitialData();
+                }}
+            />
 
             {/* MODALS */}
             <TicketDetailModal

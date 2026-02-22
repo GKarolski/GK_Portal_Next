@@ -368,33 +368,79 @@ export const backend = {
         if (payload.subAction === 'delete') {
             const { error } = await supabase.from('sops').delete().eq('id', payload.id);
             if (error) throw error;
+        } else if (payload.subAction === 'update') {
+            const { id, subAction, ...updates } = payload;
+            const { error } = await supabase.from('sops').update(updates).eq('id', id);
+            if (error) throw error;
         } else {
-            // create/update logic
+            const { subAction, ...data } = payload;
+            const { error } = await supabase.from('sops').insert(data);
+            if (error) throw error;
         }
         return { success: true };
     },
 
     // --- DOCUMENTS ---
-    getClientDocuments: async (orgId?: string) => {
-        let query = supabase.from('vault_documents').select('*').order('uploaded_at', { ascending: false });
+    async getClientDocuments(orgId?: string) {
+        let query = supabase.from('client_documents').select('*');
         if (orgId) query = query.eq('organization_id', orgId);
-        const { data, error } = await query;
-        if (error) throw error;
+        const { data } = await query.order('created_at', { ascending: false });
         return data || [];
     },
 
-    uploadClientDocument: async (orgId: string, file: File) => {
-        // Mocking upload for now to allow UI to function
+    async uploadClientDocument(orgId: string, file: File) {
+        // Implementation for storage + db record
+        const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('client-documents')
+            .upload(`${orgId}/${Date.now()}_${file.name}`, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data, error } = await supabase.from('client_documents').insert({
+            organization_id: orgId,
+            filename: file.name,
+            file_path: uploadData.path,
+            file_size: file.size,
+            mime_type: file.type
+        }).select().single();
+
+        if (error) throw error;
+        return { success: true, id: data.id };
+    },
+
+    async deleteClientDocument(id: number) {
+        const { error } = await supabase.from('client_documents').delete().eq('id', id);
+        return { success: !error };
+    },
+
+    async reindexClientDocument(id: number) {
+        // Trigger edge function or similar for RAG indexing
         return { success: true };
     },
 
-    deleteClientDocument: async (id: number) => {
-        const { error } = await supabase.from('vault_documents').delete().eq('id', id);
-        return { success: !error, error };
+    async chatWithAI(messages: any[], contextData: any) {
+        const response = await fetch('/api/ai/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                messages,
+                organizationId: contextData.activeClientId !== 'ALL' ? contextData.activeClientId : undefined,
+                activeTicketId: contextData.selectedTicket?.id
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`AI Chat Error: ${response.statusText}`);
+        }
+
+        return await response.json();
     },
 
-    reindexClientDocument: async (id: number) => {
-        return { success: true };
+    async updateClientData(clientId: string, field: string, value: any) {
+        const { error } = await supabase.from('organizations')
+            .update({ [field]: value })
+            .eq('id', clientId);
+        return { success: !error };
     },
 
     // --- TIMERS ---

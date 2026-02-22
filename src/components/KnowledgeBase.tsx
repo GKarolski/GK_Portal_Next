@@ -14,9 +14,12 @@ interface SOP {
     created_at: string;
 }
 
+import { User, Folder } from '@/types';
+
 interface KnowledgeBaseProps {
-    clients?: any[];
-    activeClientId?: string;
+    user: User;
+    clients?: User[];
+    selectedClientId: string;
 }
 
 const CATEGORIES = [
@@ -28,7 +31,7 @@ const CATEGORIES = [
     { value: 'SALES', label: 'Sprzedaż' }
 ];
 
-export const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({ clients = [], activeClientId = 'ALL' }) => {
+export const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({ user, clients = [], selectedClientId: activeClientId = 'ALL' }) => {
     const [sops, setSops] = useState<SOP[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
@@ -87,12 +90,17 @@ export const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({ clients = [], acti
         if (!editingSop?.title || !editingSop?.content) return;
         setIsSaving(true);
         try {
-            // Need to implement manageSop in api.ts
-            // await backend.manageSop(...)
+            const payload = {
+                ...editingSop,
+                subAction: editingSop.id ? 'update' : 'create',
+                client_id: activeClientId !== 'ALL' ? activeClientId : editingSop.client_id
+            };
+            await backend.manageSop(payload);
             await fetchSops();
             setIsEditorOpen(false);
             setEditingSop(null);
         } catch (error) {
+            console.error(error);
             alert("Błąd podczas zapisywania SOP");
         } finally {
             setIsSaving(false);
@@ -102,7 +110,7 @@ export const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({ clients = [], acti
     const handleDelete = async (id: number) => {
         if (!confirm("Czy na pewno chcesz usunąć tę procedurę?")) return;
         try {
-            // await backend.manageSop({ subAction: 'delete', id });
+            await backend.manageSop({ subAction: 'delete', id });
             await fetchSops();
         } catch (error) {
             alert("Błąd podczas usuwania");

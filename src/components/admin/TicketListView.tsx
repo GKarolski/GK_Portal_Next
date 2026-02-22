@@ -197,7 +197,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
             )}
 
             {viewMode === 'kb' && (
-                <KnowledgeBase clients={clients} activeClientId={selectedClientId} />
+                <KnowledgeBase user={user} clients={clients} selectedClientId={selectedClientId} />
             )}
 
             {viewMode === 'board' && (

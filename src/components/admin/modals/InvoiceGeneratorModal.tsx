@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Ticket } from '@/types';
 import { X, Copy, Check } from 'lucide-react';
+import { Button } from '@/components/legacy/UIComponents';
 
 interface InvoiceGeneratorModalProps {
     tickets: Ticket[];
