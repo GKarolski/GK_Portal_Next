@@ -1,5 +1,5 @@
 @import "tailwindcss";
-/* VERIFICATION_TRIGGER: All build-breaking classes removed. */
+/* PRODUCTION_READY: Tailwind v4 build fixed. Triggering fresh deployment. */
 
 :root {
   --background: #050505;
