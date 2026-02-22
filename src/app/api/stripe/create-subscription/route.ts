@@ -48,8 +48,8 @@ export async function POST(req: Request) {
             }
         });
 
-        const invoice = subscription.latest_invoice as Stripe.Invoice;
-        const paymentIntent = invoice.payment_intent as Stripe.PaymentIntent;
+        const invoice = subscription.latest_invoice as any;
+        const paymentIntent = invoice?.payment_intent;
 
         if (!paymentIntent) {
             throw new Error('Nie udało się wygenerować PaymentIntent');
