@@ -2,7 +2,6 @@ const Stripe = require('stripe');
 const fs = require('fs');
 const path = require('path');
 
-// Read .env.local manually
 const envPath = path.join(process.cwd(), '.env.local');
 const envContent = fs.readFileSync(envPath, 'utf8');
 const secretKeyMatch = envContent.match(/STRIPE_SECRET_KEY=([^\s]+)/);
@@ -14,23 +13,26 @@ if (!secretKeyMatch) {
 
 const stripe = new Stripe(secretKeyMatch[1]);
 
-async function fetchPrices() {
+async function fetchPriceDetails() {
     try {
         const prices = await stripe.prices.list({
             active: true,
             expand: ['data.product'],
         });
 
-        let output = '--- ACTIVE STRIPE PRICES ---\n';
+        let output = '--- DETAILED STRIPE PRICES ---\n';
         prices.data.forEach(p => {
             output += `Plan: ${p.product.name} | Price ID: ${p.id} | Amount: ${p.unit_amount / 100} ${p.currency.toUpperCase()}\n`;
+            output += `  Interval: ${p.recurring?.interval} | Trial Days: ${p.recurring?.trial_period_days || 0}\n`;
+            output += `  Product ID: ${p.product.id} | Active: ${p.active}\n`;
+            output += `---------------------------\n`;
         });
-        output += '---------------------------';
-        fs.writeFileSync(path.join(process.cwd(), 'scripts/stripe_prices.txt'), output);
-        console.log('Saved to scripts/stripe_prices.txt');
+
+        fs.writeFileSync(path.join(process.cwd(), 'scripts/stripe_price_details.txt'), output);
+        console.log('Saved to scripts/stripe_price_details.txt');
     } catch (error) {
         console.error('Error fetching prices:', error.message);
     }
 }
 
-fetchPrices();
+fetchPriceDetails();

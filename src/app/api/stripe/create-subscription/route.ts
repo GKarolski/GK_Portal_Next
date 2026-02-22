@@ -2,14 +2,18 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { supabaseAdmin } from '@/lib/supabaseServer';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+// Set Stripe API version to match legacy if possible, or at least be explicit
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: '2023-10-16',
+});
 
 export async function POST(req: Request) {
     try {
         const { planId, email, userId } = await req.json();
+        console.log('[STRIPE DEBUG] Received:', { planId, email, userId });
 
         if (!userId || !email) {
-            return NextResponse.json({ error: 'Brak danych użytkownika' }, { status: 400 });
+            return NextResponse.json({ error: 'Brak danych użytkownika w żądaniu.' }, { status: 400 });
         }
 
         // 1. Resolve Price ID
@@ -20,15 +24,16 @@ export async function POST(req: Request) {
         };
 
         const priceId = priceMap[planId.toUpperCase()] || priceMap.STANDARD;
+        console.log('[STRIPE DEBUG] Using priceId:', priceId);
 
         // 2. Create/Retrieve Stripe Customer
-        // First check if profile already has a customer_id (assuming we add this column or use metadata)
-        // For now, let's just search by email or create new as in legacy
         let customer;
         const customers = await stripe.customers.list({ email, limit: 1 });
         if (customers.data.length > 0) {
             customer = customers.data[0];
+            console.log('[STRIPE DEBUG] Found existing customer:', customer.id);
         } else {
+            console.log('[STRIPE DEBUG] Creating new customer for:', email);
             customer = await stripe.customers.create({
                 email,
                 metadata: { userId }
@@ -36,37 +41,56 @@ export async function POST(req: Request) {
         }
 
         // 3. Create Subscription
-        console.log('Creating subscription for customer:', customer.id, 'with price:', priceId);
+        console.log('[STRIPE DEBUG] Creating subscription...');
         const subscription = await stripe.subscriptions.create({
             customer: customer.id,
             items: [{ price: priceId }],
             payment_behavior: 'default_incomplete',
             payment_settings: { save_default_payment_method: 'on_subscription' },
             expand: ['latest_invoice.payment_intent'],
-            metadata: {
-                userId,
-                planId
-            }
+            metadata: { userId, planId }
         });
+
+        console.log('[STRIPE DEBUG] Subscription status:', subscription.status);
 
         let invoice = subscription.latest_invoice as any;
 
-        // Fallback: If not expanded, fetch manually
-        if (typeof invoice === 'string') {
-            console.log('Invoice not expanded, fetching manually:', invoice);
-            invoice = await stripe.invoices.retrieve(invoice, {
+        // Detailed check for PaymentIntent
+        let paymentIntent: Stripe.PaymentIntent | null = null;
+
+        if (invoice && typeof invoice === 'object') {
+            console.log('[STRIPE DEBUG] Invoice amount_due:', invoice.amount_due);
+            if (typeof invoice.payment_intent === 'object') {
+                paymentIntent = invoice.payment_intent as Stripe.PaymentIntent;
+            } else if (typeof invoice.payment_intent === 'string') {
+                console.log('[STRIPE DEBUG] PaymentIntent is string ID, fetching object:', invoice.payment_intent);
+                paymentIntent = await stripe.paymentIntents.retrieve(invoice.payment_intent);
+            }
+        }
+
+        // If still nothing, try fetching the invoice manually as a last resort
+        if (!paymentIntent && invoice) {
+            const invoiceId = typeof invoice === 'string' ? invoice : invoice.id;
+            console.log('[STRIPE DEBUG] Refetching invoice manually:', invoiceId);
+            const refetchedInvoice = await stripe.invoices.retrieve(invoiceId, {
                 expand: ['payment_intent']
             });
+            if (typeof refetchedInvoice.payment_intent === 'object') {
+                paymentIntent = refetchedInvoice.payment_intent as Stripe.PaymentIntent;
+            }
         }
-
-        const paymentIntent = invoice?.payment_intent as Stripe.PaymentIntent;
 
         if (!paymentIntent) {
-            console.error('Subscription created but no PaymentIntent found. Status:', subscription.status, 'Invoice:', invoice?.id);
-            throw new Error('Nie udało się wygenerować PaymentIntent. Sprawdź konfigurację Stripe (np. waluty lub nieaktywne ceny).');
+            const debugInfo = {
+                subStatus: subscription.status,
+                invoiceId: typeof invoice === 'string' ? invoice : invoice?.id,
+                amountDue: typeof invoice === 'object' ? invoice?.amount_due : 'unknown',
+            };
+            console.error('[STRIPE ERROR] Could not find PaymentIntent. Debug Info:', debugInfo);
+            throw new Error(`Błąd konfiguracji Stripe: Subskrypcja utworzona, ale nie wygenerowano PaymentIntent (Kwota do zapłaty: ${debugInfo.amountDue}). Możliwe przyczyny: darmowy okres próbny, saldo klienta lub nieaktywna cena.`);
         }
 
-        console.log('Subscription created successfully:', subscription.id);
+        console.log('[STRIPE SUCCESS] PaymentIntent generated:', paymentIntent.id);
         return NextResponse.json({
             subscriptionId: subscription.id,
             clientSecret: paymentIntent.client_secret,
@@ -74,7 +98,12 @@ export async function POST(req: Request) {
         });
 
     } catch (error: any) {
-        console.error('Stripe Subscription Error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        console.error('[STRIPE CRITICAL ERROR]:', error);
+        return NextResponse.json({
+            error: error.message,
+            code: error.code,
+            decline_code: error.decline_code,
+            debug: true // Flag to show more info on client if needed
+        }, { status: 500 });
     }
 }
