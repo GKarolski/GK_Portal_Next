@@ -103,7 +103,8 @@ export async function POST(req: Request) {
             error: error.message,
             code: error.code,
             decline_code: error.decline_code,
-            debug: true // Flag to show more info on client if needed
+            debug: true,
+            full_error: error // Include full error for debug
         }, { status: 500 });
     }
 }

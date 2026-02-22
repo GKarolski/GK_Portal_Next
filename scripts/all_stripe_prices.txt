@@ -1,0 +1,12 @@
+--- ALL STRIPE PRICES (LIMIT 100) ---
+ID: price_1T2uQbJQcFY2PeiPUzsizjpF | Amount: 5990 PLN | Name: Expert | Active: true | ProdActive: true
+ID: price_1T2uMFJQcFY2PeiPEcCqha2w | Amount: 599 PLN | Name: Expert | Active: true | ProdActive: true
+ID: price_1T2uLiJQcFY2PeiPgm1TBJeX | Amount: 2490 PLN | Name: Professional | Active: true | ProdActive: true
+ID: price_1T2uJKJQcFY2PeiPqdpnw4tg | Amount: 249 PLN | Name: Professional | Active: true | ProdActive: true
+ID: price_1T2uHyJQcFY2PeiPwwGZXuwy | Amount: 1490 PLN | Name: Starter | Active: true | ProdActive: true
+ID: price_1T2uHHJQcFY2PeiPuSLNImIK | Amount: 149 PLN | Name: Starter | Active: true | ProdActive: true
+ID: price_1T2t5sJQcFY2PeiP5098NETc | Amount: 10 USD | Name: USD Test Plan | Active: true | ProdActive: false
+ID: price_1T1MbvJQcFY2PeiPLlwxblxx | Amount: 1490 PLN | Name: pro | Active: true | ProdActive: false
+ID: price_1T0KtIJQcFY2PeiPZzKgAamL | Amount: 299 PLN | Name: Agency | Active: true | ProdActive: false
+ID: price_1T0KsvJQcFY2PeiPZ6qPTWyO | Amount: 149 PLN | Name: pro | Active: true | ProdActive: false
+ID: price_1T0KsDJQcFY2PeiP4hMVVXYa | Amount: 89 PLN | Name: Standard | Active: true | ProdActive: false
