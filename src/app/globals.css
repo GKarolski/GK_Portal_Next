@@ -1,5 +1,5 @@
 @import "tailwindcss";
-/* Final Deployment Trigger - Verified Local Build Success */
+/* VERIFICATION_TRIGGER: All build-breaking classes removed. */
 
 :root {
   --background: #050505;
