@@ -33,7 +33,7 @@ export async function POST(req: Request) {
         if (event.type === 'checkout.session.completed') {
             const session = event.data.object as Stripe.Checkout.Session;
             await handleProvisioning(
-                session.metadata?.userId || session.client_reference_id,
+                (session.metadata?.userId || session.client_reference_id) ?? undefined,
                 session.metadata?.plan_id,
                 session.metadata?.companyName,
                 session.customer as string,
