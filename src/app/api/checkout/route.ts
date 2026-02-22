@@ -10,9 +10,9 @@ export async function POST(req: Request) {
         const { planId, email } = await req.json();
 
         const priceMap: Record<string, string> = {
-            'STARTER': 'price_1T0KgcJQcFY2PeiPm0S8N8C2', // Replace with real IDs if needed, but these are test IDs from user's env
-            'STANDARD': 'price_1T0KgcJQcFY2PeiPC4m7Y5zN',
-            'AGENCY': 'price_1T0KgcJQcFY2PeiP4f4R7K3X'
+            'STARTER': 'price_1T0KsDJQcFY2PeiP4hMVVXYa',
+            'STANDARD': 'price_1T0KsvJQcFY2PeiPZ6qPTWyO',
+            'AGENCY': 'price_1T0KtIJQcFY2PeiPZzKgAamL'
         };
 
         const priceId = priceMap[planId.toUpperCase()] || priceMap.STARTER;
