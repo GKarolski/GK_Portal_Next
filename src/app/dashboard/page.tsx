@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/Card';
 import { Modal, ImageViewer } from '@/components/ui/Modal';
 import { Badge, StatusBadge, CategoryBadge, PriorityBadge } from '@/components/ui/Badge';
 import { ClientSidebar } from '@/components/client/ClientSidebar';
+import { AdminPortal } from '@/components/portal/AdminPortal';
 import { DashboardHeader } from '@/components/admin/DashboardHeader';
 import { TicketListView } from '@/components/admin/TicketListView';
 import { WizardSelectionCard } from '@/components/shared/WizardSelectionCard';
@@ -138,6 +139,10 @@ export default function ClientDashboardPage() {
             Przekierowywanie do logowania...
         </div>
     );
+
+    if (user.role === 'ADMIN') {
+        return <AdminPortal user={user} />;
+    }
 
     return (
         <div className="flex bg-gk-950 overflow-hidden h-screen text-slate-100 selection:bg-accent-red/30">
