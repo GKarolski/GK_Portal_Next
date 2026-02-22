@@ -188,7 +188,7 @@ const ClientPortal: React.FC<ClientPortalProps> = ({ user }) => {
             return (map[b.priority] || 2) - (map[a.priority] || 2);
         }
         if (sortMode === 'STATUS') return a.status.localeCompare(b.status);
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
 
     return (
@@ -398,13 +398,13 @@ const ClientPortal: React.FC<ClientPortalProps> = ({ user }) => {
                             )}
                         </div>
 
-                        {selectedTicket.publicNotes && (
+                        {selectedTicket.public_notes && (
                             <div className="bg-gradient-to-br from-indigo-900/40 to-purple-900/40 p-5 rounded-2xl border border-indigo-500/30 mb-6 shadow-lg shadow-indigo-500/10">
                                 <div className="flex items-center gap-2 mb-3">
                                     <div className="w-6 h-6 rounded-full bg-indigo-500 flex items-center justify-center text-[10px] text-white font-bold">GK</div>
                                     <span className="text-xs font-bold text-indigo-300 uppercase tracking-widest">Wiadomość od Administracji</span>
                                 </div>
-                                <p className="text-white text-sm whitespace-pre-wrap leading-relaxed italic">{selectedTicket.publicNotes}</p>
+                                <p className="text-white text-sm whitespace-pre-wrap leading-relaxed italic">{selectedTicket.public_notes}</p>
                             </div>
                         )}
 

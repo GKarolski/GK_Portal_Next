@@ -68,15 +68,7 @@ export const backend = {
         // Map snake_case to camelCase if necessary (though current types seem mixed)
         return (data || []).map(t => ({
             ...t,
-            clientId: t.created_by_user_id, // Map for legacy support
-            createdAt: t.created_at,
-            publicNotes: t.public_notes,
-            internalNotes: t.internal_notes,
-            adminStartDate: t.admin_start_date,
-            adminDeadline: t.admin_deadline,
-            errorDate: t.error_date,
-            folderId: t.folder_id,
-            historyLog: t.history_log,
+            clientId: t.created_by_user_id, // legacy support for TicketListView
         }));
     },
 
@@ -137,7 +129,19 @@ export const backend = {
 
     updateTicket: async (ticketId: string, field: string, value: any): Promise<{ success: boolean }> => {
         const payload: any = {};
-        if (field === 'dates') {
+        if (field === 'all') {
+            Object.keys(value).forEach(k => {
+                if (k === 'adminStartDate') payload.admin_start_date = value[k];
+                else if (k === 'adminDeadline') payload.admin_deadline = value[k];
+                else if (k === 'internalNotes') payload.internal_notes = value[k];
+                else if (k === 'publicNotes') payload.public_notes = value[k];
+                else if (k === 'folderId') payload.folder_id = value[k];
+                else if (k === 'errorDate') payload.error_date = value[k];
+                else if (k === 'deviceType') payload.device_type = value[k];
+                else if (k === 'billingType') payload.billing_type = value[k];
+                else payload[k] = value[k];
+            });
+        } else if (field === 'dates') {
             payload.admin_start_date = value.start;
             payload.admin_deadline = value.deadline;
         } else if (field === 'internalNotes') {
