@@ -57,7 +57,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ user }) => {
         try {
             const [tData, cData] = await Promise.all([
                 backend.getTickets(user, currentMonth),
-                backend.getClients(user.organizationId!)
+                backend.getClients()
             ]);
             setTickets(tData);
             setClients(cData);

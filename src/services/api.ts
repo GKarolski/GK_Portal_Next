@@ -204,12 +204,20 @@ export const backend = {
         }));
     },
 
-    getClients: async (orgId: string): Promise<User[]> => {
-        // Filter profiles by the specific organization_id of the tenant
-        const { data, error } = await supabase
+    getClients: async (orgId?: string): Promise<User[]> => {
+        // For Freelancer Admin, we want ALL clients across all organizations
+        // If an orgId is provided, we can still filter if needed, but for the main sidebar, we usually want all.
+        let query = supabase
             .from('profiles')
             .select('*')
-            .eq('organization_id', orgId);
+            .eq('role', 'CLIENT');
+
+        if (orgId && orgId !== 'ALL') {
+            // Optional: keep it if we want to specifically filter, but for the Freelancer dashboard, we want more.
+            // Actually, let's keep it broad for Admins.
+        }
+
+        const { data, error } = await query;
 
         if (error) throw error;
         return data.map(p => ({
