@@ -59,7 +59,6 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 
                     {(() => {
                         const processedOrgs = new Set();
-                        console.log('[DEBUG] AdminSidebar: Filtering clients. Total count:', clients.length);
                         return clients
                             .filter(c => c.role !== 'ADMIN')
                             .map(client => {
@@ -74,8 +73,6 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 
                                 const isSelected = selectedClientId === (client.organizationId || client.id);
 
-                                console.log(`[DEBUG] AdminSidebar: Rendering org group: ${orgId}, Members: ${orgMembers.length}`);
-
                                 return (
                                     <div key={orgId} className="flex flex-col gap-1 group">
                                         <div
@@ -85,7 +82,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                                                     setSelectedClientId('ALL');
                                                     setActiveFolderId(null);
                                                 } else {
-                                                    setSelectedClientId(client.organizationId!);
+                                                    setSelectedClientId(orgId);
                                                     setActiveFolderId(null);
                                                 }
                                             }}
@@ -118,18 +115,18 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                                                     <button
                                                         onClick={(e) => {
                                                             e.stopPropagation();
-                                                            setOpenMenuId(openMenuId === client.organizationId ? null : client.organizationId!);
+                                                            setOpenMenuId(openMenuId === orgId ? null : orgId);
                                                         }}
-                                                        className={`p-1.5 rounded-lg transition-colors ${openMenuId === client.organizationId ? 'text-white bg-white/10' : 'text-slate-400 hover:text-white hover:bg-white/10'}`}
+                                                        className={`p-1.5 rounded-lg transition-colors ${openMenuId === orgId ? 'text-white bg-white/10' : 'text-slate-400 hover:text-white hover:bg-white/10'}`}
                                                         title="Ustawienia"
                                                     >
                                                         <Settings size={14} />
                                                     </button>
 
-                                                    {openMenuId === client.organizationId && (
+                                                    {openMenuId === orgId && (
                                                         <div className="absolute right-0 top-full mt-1 w-48 bg-gk-900 border border-white/10 rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
                                                             <button
-                                                                onClick={(e) => { e.stopPropagation(); onAddMember(client.organizationId!, client.companyName || client.name); setOpenMenuId(null); }}
+                                                                onClick={(e) => { e.stopPropagation(); onAddMember(orgId, client.companyName || client.name); setOpenMenuId(null); }}
                                                                 className="w-full text-left px-4 py-3 text-xs font-bold text-slate-300 hover:text-white hover:bg-white/5 flex items-center gap-2"
                                                             >
                                                                 <UserPlus size={14} /> Dodaj pracownika

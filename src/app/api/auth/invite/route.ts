@@ -5,7 +5,6 @@ import { createClient } from '@supabase/supabase-js';
 export async function POST(req: NextRequest) {
     try {
         console.log('--- Invitation API Call Started ---');
-        console.log('[DEBUG] Server Environment - Key Prefix:', process.env.SUPABASE_SERVICE_ROLE_KEY?.substring(0, 4) || 'NONE');
 
         if (!process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY === 'placeholder') {
             console.error('[INVITE] Missing SUPABASE_SERVICE_ROLE_KEY in environment');
