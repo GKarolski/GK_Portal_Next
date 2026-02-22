@@ -1,5 +1,5 @@
 @import "tailwindcss";
-/* Force Vercel build trigger - CSS variable resolution fix applied */
+/* Final Deployment Trigger - Verified Local Build Success */
 
 :root {
   --background: #050505;
