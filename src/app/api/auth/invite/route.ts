@@ -4,15 +4,17 @@ import { createClient } from '@supabase/supabase-js';
 
 export async function POST(req: NextRequest) {
     try {
+        console.log('--- Invitation API Call Started ---');
+
         // 1. Verify Authorization
         const authHeader = req.headers.get('Authorization');
         if (!authHeader) {
+            console.error('[INVITE] Missing Authorization header');
             return NextResponse.json({ error: 'Brak autoryzacji' }, { status: 401 });
         }
 
         const token = authHeader.replace('Bearer ', '');
 
-        // Use a temporary client to verify the user token
         const authClient = createClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
             process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -21,25 +23,43 @@ export async function POST(req: NextRequest) {
         const { data: { user }, error: authError } = await authClient.auth.getUser(token);
 
         if (authError || !user) {
+            console.error('[INVITE] Auth verification failed:', authError);
             return NextResponse.json({ error: 'Nieprawidłowa sesja' }, { status: 401 });
         }
 
-        // 2. Check Admin Role
+        console.log('[INVITE] User verified:', user.email, 'ID:', user.id);
+
+        // 2. Check Admin Role (with Metadata Fallback)
         const { data: profile, error: profileError } = await supabaseAdmin
             .from('profiles')
             .select('role')
             .eq('id', user.id)
             .single();
 
-        if (profileError || profile?.role !== 'ADMIN') {
+        let isAdmin = profile?.role === 'ADMIN';
+
+        if (profileError || !isAdmin) {
+            console.warn('[INVITE] Profile check failed or not admin, trying metadata. Error:', profileError);
+            if (user.user_metadata?.role === 'ADMIN') {
+                console.log('[INVITE] Admin role found in metadata fallback');
+                isAdmin = true;
+            }
+        }
+
+        if (!isAdmin) {
+            console.error('[INVITE] Access denied: User is not an admin.');
             return NextResponse.json({ error: 'Brak uprawnień administratora' }, { status: 403 });
         }
+
+        console.log('[INVITE] Admin check passed');
 
         // 3. Process Invitation
         const body = await req.json();
         const { name, email, company, orgId, details } = body;
+        console.log('[INVITE] Payload:', { name, email, company, orgId });
 
         if (!email || !company || !name) {
+            console.error('[INVITE] Missing required fields');
             return NextResponse.json({ error: 'Brak wymaganych danych (email, firma, nazwa)' }, { status: 400 });
         }
 
@@ -47,6 +67,7 @@ export async function POST(req: NextRequest) {
 
         // Create new organization if none provided
         if (!targetOrgId) {
+            console.log('[INVITE] Creating new organization:', company);
             const { data: newOrg, error: orgError } = await supabaseAdmin
                 .from('organizations')
                 .insert({ name: company })
@@ -54,14 +75,15 @@ export async function POST(req: NextRequest) {
                 .single();
 
             if (orgError) {
-                console.error('Org Creation Error:', orgError);
+                console.error('[INVITE] Org Creation Error:', orgError);
                 return NextResponse.json({ error: 'Błąd podczas tworzenia organizacji' }, { status: 500 });
             }
             targetOrgId = newOrg.id;
+            console.log('[INVITE] New Org Created ID:', targetOrgId);
         }
 
         // 4. Invite User with Metadata
-        // The handle_new_user trigger in supabase_setup.sql will pick up this metadata
+        console.log('[INVITE] Sending Supabase Invitation to:', email);
         const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
             data: {
                 name: name,
@@ -75,14 +97,15 @@ export async function POST(req: NextRequest) {
                 avatar_url: details?.avatar,
                 role_in_org: orgId ? 'MEMBER' : 'OWNER'
             },
-            // Redirect back to the portal
             redirectTo: `${new URL(req.url).origin}/login`
         });
 
         if (inviteError) {
-            console.error('Invite Error:', inviteError);
-            return NextResponse.json({ error: inviteError.message }, { status: 500 });
+            console.error('[INVITE] Supabase Auth Error:', inviteError);
+            return NextResponse.json({ error: 'Błąd Supabase Auth: ' + inviteError.message }, { status: 500 });
         }
+
+        console.log('[INVITE] Invitation successful for:', email, 'User ID:', inviteData.user.id);
 
         return NextResponse.json({
             success: true,
@@ -91,7 +114,7 @@ export async function POST(req: NextRequest) {
         });
 
     } catch (error: any) {
-        console.error('Server Internal Error:', error);
-        return NextResponse.json({ error: 'Wystąpił błąd serwera' }, { status: 500 });
+        console.error('[INVITE] Server Internal Error Catch:', error);
+        return NextResponse.json({ error: 'Wystąpił błąd serwera: ' + error.message }, { status: 500 });
     }
 }

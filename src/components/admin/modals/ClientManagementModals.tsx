@@ -27,6 +27,7 @@ export const InviteClientModal: React.FC<InviteClientModalProps> = ({ isOpen, on
     const [showDetails, setShowDetails] = useState(false);
     const [isSent, setIsSent] = useState(false);
     const [isSending, setIsSending] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         setCompany(initialCompany || '');
@@ -39,18 +40,21 @@ export const InviteClientModal: React.FC<InviteClientModalProps> = ({ isOpen, on
         setAvatar(null);
         setShowDetails(false);
         setIsSent(false);
+        setError(null);
     }, [isOpen, initialCompany]);
 
     const handleInvite = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSending(true);
+        setError(null);
         try {
             await backend.inviteClient(name, email, company, inviteOrganizationId || undefined, {
                 nip, phone, website, adminNotes: notes, avatar: avatar || undefined
             });
             setIsSent(true);
-        } catch (error) {
-            console.error(error);
+        } catch (err: any) {
+            console.error(err);
+            setError(err.message || 'Wystąpił nieoczekiwany błąd podczas wysyłania zaproszenia.');
         } finally {
             setIsSending(false);
         }
@@ -66,6 +70,11 @@ export const InviteClientModal: React.FC<InviteClientModalProps> = ({ isOpen, on
                 </div>
             ) : (
                 <form onSubmit={handleInvite} className="space-y-6">
+                    {error && (
+                        <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-sm animate-in shake duration-300">
+                            {error}
+                        </div>
+                    )}
                     <div className="space-y-4">
                         <Input label={inviteOrganizationId ? "Organizacja (Zablokowane)" : "Nazwa Firmy"} value={company} onChange={(e) => setCompany(e.target.value)} required disabled={!!inviteOrganizationId} />
                         <Input label="Osoba Kontaktowa" value={name} onChange={(e) => setName(e.target.value)} required />
