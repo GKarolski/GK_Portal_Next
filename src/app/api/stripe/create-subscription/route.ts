@@ -36,6 +36,7 @@ export async function POST(req: Request) {
         }
 
         // 3. Create Subscription
+        console.log('Creating subscription for customer:', customer.id, 'with price:', priceId);
         const subscription = await stripe.subscriptions.create({
             customer: customer.id,
             items: [{ price: priceId }],
@@ -48,13 +49,24 @@ export async function POST(req: Request) {
             }
         });
 
-        const invoice = subscription.latest_invoice as any;
-        const paymentIntent = invoice?.payment_intent;
+        let invoice = subscription.latest_invoice as any;
 
-        if (!paymentIntent) {
-            throw new Error('Nie udało się wygenerować PaymentIntent');
+        // Fallback: If not expanded, fetch manually
+        if (typeof invoice === 'string') {
+            console.log('Invoice not expanded, fetching manually:', invoice);
+            invoice = await stripe.invoices.retrieve(invoice, {
+                expand: ['payment_intent']
+            });
         }
 
+        const paymentIntent = invoice?.payment_intent as Stripe.PaymentIntent;
+
+        if (!paymentIntent) {
+            console.error('Subscription created but no PaymentIntent found. Status:', subscription.status, 'Invoice:', invoice?.id);
+            throw new Error('Nie udało się wygenerować PaymentIntent. Sprawdź konfigurację Stripe (np. waluty lub nieaktywne ceny).');
+        }
+
+        console.log('Subscription created successfully:', subscription.id);
         return NextResponse.json({
             subscriptionId: subscription.id,
             clientSecret: paymentIntent.client_secret,
