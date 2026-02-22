@@ -22,13 +22,14 @@ function ProvisioningContent() {
     const [currentStep, setCurrentStep] = useState(0);
     const [completedSteps, setCompletedSteps] = useState<number[]>([]);
     const [isProvisioned, setIsProvisioned] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         // ACTUAL PROVISIONING LOGIC
         const startProvisioning = async () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
-                console.error("No user found for provisioning");
+                setError("Nie znaleziono zalogowanego użytkownika.");
                 return;
             }
 
@@ -39,6 +40,7 @@ function ProvisioningContent() {
             if (result.success) {
                 setIsProvisioned(true);
             } else {
+                setError("Błąd podczas konfiguracji instancji. Proszę skontaktować się z supportem.");
                 console.error("Provisioning action failed", result.error);
             }
         };
@@ -47,6 +49,8 @@ function ProvisioningContent() {
     }, [searchParams]);
 
     useEffect(() => {
+        if (error) return; // Stop animation if error occurs
+
         if (currentStep < steps.length) {
             const timer = setTimeout(() => {
                 // If we are at the last step but not provisioned yet, wait
@@ -61,7 +65,7 @@ function ProvisioningContent() {
                 router.push('/dashboard');
             }, 1000);
         }
-    }, [currentStep, isProvisioned, router]);
+    }, [currentStep, isProvisioned, error, router]);
 
     return (
         <div className="min-h-screen bg-[#050505] text-white flex flex-col items-center justify-center p-6 relative overflow-hidden">
@@ -149,6 +153,24 @@ function ProvisioningContent() {
                         </div>
                     </div>
                 </div>
+
+                {/* Error Display */}
+                {error && (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="mt-8 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm text-center max-w-sm"
+                    >
+                        {error}
+                        <Button
+                            variant="secondary"
+                            onClick={() => window.location.reload()}
+                            className="mt-4 w-full h-10 text-xs"
+                        >
+                            Spróbuj Ponownie
+                        </Button>
+                    </motion.div>
+                )}
 
                 {/* Footer Quote */}
                 <motion.p

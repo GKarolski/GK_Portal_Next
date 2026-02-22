@@ -1,0 +1,42 @@
+import { NextResponse } from 'next/server';
+import Stripe from 'stripe';
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: '2025-01-27-preview', // Update to the version you are using
+});
+
+export async function POST(req: Request) {
+    try {
+        const { planId, email } = await req.json();
+
+        const priceMap: Record<string, string> = {
+            'STARTER': 'price_1T0KgcJQcFY2PeiPm0S8N8C2', // Replace with real IDs if needed, but these are test IDs from user's env
+            'STANDARD': 'price_1T0KgcJQcFY2PeiPC4m7Y5zN',
+            'AGENCY': 'price_1T0KgcJQcFY2PeiP4f4R7K3X'
+        };
+
+        const priceId = priceMap[planId.toUpperCase()] || priceMap.STARTER;
+
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            line_items: [
+                {
+                    price: priceId,
+                    quantity: 1,
+                },
+            ],
+            mode: 'subscription',
+            success_url: `${req.headers.get('origin')}/provisioning?plan=${planId}&session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${req.headers.get('origin')}/checkout?plan=${planId}`,
+            customer_email: email,
+            metadata: {
+                plan_id: planId,
+            },
+        });
+
+        return NextResponse.json({ url: session.url });
+    } catch (error: any) {
+        console.error('Stripe error:', error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+}

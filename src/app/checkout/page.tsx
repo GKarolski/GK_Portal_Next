@@ -13,8 +13,11 @@ const plans = {
     AGENCY: { name: 'Agency', price: '259 zł', features: ['∞ Adminów', '∞ Klientów', '100 GB', 'Support 24/7'] }
 };
 
+import { useAuth } from '@/contexts/AuthContext';
+
 function CheckoutContent() {
     const router = useRouter();
+    const { user } = useAuth();
     const searchParams = useSearchParams();
     const planKey = (searchParams.get('plan') || 'STARTER').toUpperCase() as keyof typeof plans;
     const plan = plans[planKey] || plans.STARTER;
@@ -23,10 +26,28 @@ function CheckoutContent() {
 
     const handlePayment = async () => {
         setIsLoading(true);
-        // Simulate payment processing delay
-        setTimeout(() => {
-            router.push(`/provisioning?plan=${planKey}`);
-        }, 1500);
+        try {
+            const response = await fetch('/api/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    planId: planKey,
+                    email: user?.email
+                }),
+            });
+
+            const data = await response.json();
+            if (data.url) {
+                window.location.href = data.url;
+            } else {
+                alert(data.error || 'Błąd podczas inicjowania płatności.');
+                setIsLoading(false);
+            }
+        } catch (error) {
+            console.error('Payment error:', error);
+            alert('Wystąpił nieoczekiwany błąd płatności.');
+            setIsLoading(false);
+        }
     };
 
     return (
