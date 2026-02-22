@@ -61,7 +61,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ user }) => {
                 backend.getClients()
             ]);
             console.log('[DEBUG] AdminPortal: Data loaded. Clients count:', cData.length, 'Tickets count:', tData.length);
-            console.log('[DEBUG] AdminPortal: Clients list:', cData);
+            console.table(cData);
             setTickets(tData);
             setClients(cData);
         } catch (e: any) {

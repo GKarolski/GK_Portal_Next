@@ -74,8 +74,10 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 
                                 const isSelected = selectedClientId === (client.organizationId || client.id);
 
+                                console.log(`[DEBUG] AdminSidebar: Rendering org group: ${orgId}, Members: ${orgMembers.length}`);
+
                                 return (
-                                    <div key={client.organizationId} className="flex flex-col gap-1 group">
+                                    <div key={orgId} className="flex flex-col gap-1 group">
                                         <div
                                             className={`relative flex items-center gap-2 w-full p-3 rounded-2xl transition-all cursor-pointer group/row ${isSelected ? 'bg-white/5 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
                                             onClick={() => {
