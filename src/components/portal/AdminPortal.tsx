@@ -16,7 +16,6 @@ import { InvoiceGeneratorModal } from '@/components/admin/modals/InvoiceGenerato
 import { TicketForm } from '@/components/TicketForm';
 import { Modal } from '@/components/legacy/UIComponents';
 import { KnowledgeBase } from '@/components/KnowledgeBase';
-import { Sparkles } from 'lucide-react';
 
 interface AdminPortalProps {
     user: User;
@@ -72,7 +71,9 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ user }) => {
     useEffect(() => {
         if (selectedClientId !== 'ALL') {
             backend.getFolders(selectedClientId).then(setFolders).catch(console.error);
-            setViewMode('list');
+            // Don't auto-switch viewMode here to allow users to stay in dashboard if they want
+            // Actually, legacy auto-switches to 'list'
+            if (viewMode === 'dashboard') setViewMode('list');
         } else {
             setFolders([]);
             setActiveFolderId(null);
@@ -157,6 +158,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ user }) => {
                         categoryFilter={categoryFilter}
                         setCategoryFilter={setCategoryFilter as any}
                         isAdmin={true}
+                        onToggleAi={() => setIsAiSidebarOpen(!isAiSidebarOpen)}
+                        isAiSidebarOpen={isAiSidebarOpen}
                     />
 
                     <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
@@ -279,17 +282,6 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ user }) => {
                     folders={folders}
                 />
             </Modal>
-
-            {/* Floating AI Button - 1:1 Restoration */}
-            {!isAiSidebarOpen && (
-                <button
-                    onClick={() => setIsAiSidebarOpen(true)}
-                    className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-indigo-600/30 hover:scale-105 transition-transform border border-white/20 animate-in slide-in-from-bottom-10 fade-in duration-500"
-                    title="Asystent AI"
-                >
-                    <Sparkles size={24} />
-                </button>
-            )}
         </div>
     );
 };
