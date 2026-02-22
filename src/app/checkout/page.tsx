@@ -8,9 +8,9 @@ import { CreditCard, ShieldCheck, Zap, ArrowRight, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const plans = {
-    STARTER: { name: 'Starter', price: '89 zł', features: ['1 Admin', '10 Klientów', '1 GB'] },
-    STANDARD: { name: 'Standard', price: '149 zł', features: ['3 Adminów', '50 Klientów', '5 GB', 'White-Label'] },
-    AGENCY: { name: 'Agency', price: '259 zł', features: ['∞ Adminów', '∞ Klientów', '100 GB', 'Support 24/7'] }
+    STARTER: { name: 'Starter', price: '149 zł', features: ['1 Admin', '10 Klientów', '1 GB'] },
+    STANDARD: { name: 'Standard', price: '249 zł', features: ['3 Adminów', '50 Klientów', '5 GB', 'White-Label'] },
+    AGENCY: { name: 'Agency', price: '599 zł', features: ['∞ Adminów', '∞ Klientów', '100 GB', 'Support 24/7'] }
 };
 
 import { useAuth } from '@/contexts/AuthContext';
