@@ -55,14 +55,17 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ user }) => {
     const loadInitialData = async () => {
         setIsLoading(true);
         try {
+            console.log('[DEBUG] AdminPortal: Loading data...');
             const [tData, cData] = await Promise.all([
                 backend.getTickets(user, currentMonth),
                 backend.getClients()
             ]);
+            console.log('[DEBUG] AdminPortal: Data loaded. Clients count:', cData.length, 'Tickets count:', tData.length);
+            console.log('[DEBUG] AdminPortal: Clients list:', cData);
             setTickets(tData);
             setClients(cData);
-        } catch (e) {
-            console.error(e);
+        } catch (e: any) {
+            console.error('[ERROR] AdminPortal failed to load data:', e);
         } finally {
             setIsLoading(false);
         }

@@ -137,7 +137,11 @@ ALTER TABLE client_documents ENABLE ROW LEVEL SECURITY;
 -- Helper: Check if user is Admin
 CREATE OR REPLACE FUNCTION public.is_admin() RETURNS BOOLEAN AS $$
 BEGIN
-  RETURN (SELECT role FROM public.profiles WHERE id = auth.uid()) = 'ADMIN';
+  RETURN (
+    EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'ADMIN')
+    OR
+    (auth.jwt()->'user_metadata'->>'role') = 'ADMIN'
+  );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 

@@ -59,15 +59,20 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 
                     {(() => {
                         const processedOrgs = new Set();
-                        // Filter out ADMIN profiles (the administrator themselves)
+                        console.log('[DEBUG] AdminSidebar: Filtering clients. Total count:', clients.length);
                         return clients
                             .filter(c => c.role !== 'ADMIN')
                             .map(client => {
-                                if (!client.organizationId || processedOrgs.has(client.organizationId)) return null;
-                                processedOrgs.add(client.organizationId);
+                                // If no organizationId, we treat the client as their own organization/individual
+                                const orgId = client.organizationId || `INDIVIDUAL-${client.id}`;
+                                if (processedOrgs.has(orgId)) return null;
+                                processedOrgs.add(orgId);
 
-                                const orgMembers = clients.filter(c => c.organizationId === client.organizationId);
-                                const isSelected = selectedClientId === client.organizationId;
+                                const orgMembers = client.organizationId
+                                    ? clients.filter(c => c.organizationId === client.organizationId)
+                                    : [client];
+
+                                const isSelected = selectedClientId === (client.organizationId || client.id);
 
                                 return (
                                     <div key={client.organizationId} className="flex flex-col gap-1 group">

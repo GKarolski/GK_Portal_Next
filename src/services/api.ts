@@ -194,7 +194,7 @@ export const backend = {
         if (error) throw error;
         return (data || []).map(p => ({
             id: p.id,
-            name: p.full_name || p.email?.split('@')[0],
+            name: p.name || p.email?.split('@')[0],
             email: p.email,
             role: p.role,
             isActive: p.is_active,
@@ -222,7 +222,7 @@ export const backend = {
         if (error) throw error;
         return data.map(p => ({
             id: p.id,
-            name: p.full_name,
+            name: p.name,
             email: p.email,
             role: p.role,
             isActive: p.is_active,
@@ -265,13 +265,13 @@ export const backend = {
 
     updateUserProfile: async (userId: string, updates: any) => {
         const payload: any = {
-            full_name: updates.name,
+            name: updates.name,
             company_name: updates.companyName,
             phone: updates.phone,
             nip: updates.nip,
             website: updates.website,
             admin_notes: updates.adminNotes,
-            avatar_url: updates.avatar
+            avatar: updates.avatar
         };
         const { error } = await supabase
             .from('profiles')
