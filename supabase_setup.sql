@@ -184,8 +184,34 @@ USING (organization_id IN (SELECT organization_id FROM public.profiles WHERE id 
 CREATE OR REPLACE FUNCTION public.handle_new_user() 
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.profiles (id, name, email, role)
-  VALUES (new.id, new.raw_user_meta_data->>'name', new.email, 'CLIENT');
+  INSERT INTO public.profiles (
+    id, 
+    name, 
+    email, 
+    role, 
+    organization_id, 
+    company_name, 
+    phone, 
+    nip, 
+    website, 
+    admin_notes, 
+    avatar,
+    is_active
+  )
+  VALUES (
+    new.id, 
+    COALESCE(new.raw_user_meta_data->>'name', new.email), 
+    new.email, 
+    COALESCE(new.raw_user_meta_data->>'role', 'CLIENT'),
+    (new.raw_user_meta_data->>'organization_id')::UUID,
+    new.raw_user_meta_data->>'company_name',
+    new.raw_user_meta_data->>'phone',
+    new.raw_user_meta_data->>'nip',
+    new.raw_user_meta_data->>'website',
+    new.raw_user_meta_data->>'admin_notes',
+    new.raw_user_meta_data->>'avatar_url',
+    TRUE
+  );
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

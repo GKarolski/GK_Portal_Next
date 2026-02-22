@@ -245,7 +245,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ user }) => {
                 isOpen={isInviteModalOpen}
                 onClose={() => setIsInviteModalOpen(false)}
                 inviteOrganizationId={selectedClientId === 'ALL' ? null : selectedClientId}
-                inviteCompany={clients.find(c => c.id === selectedClientId)?.companyName || ''}
+                inviteCompany={clients.find(c => c.id === selectedClientId || c.organizationId === selectedClientId)?.companyName || ''}
+                onSuccess={loadInitialData}
             />
 
             <EditClientModal

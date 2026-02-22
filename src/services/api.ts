@@ -231,8 +231,28 @@ export const backend = {
     },
 
     inviteClient: async (name: string, email: string, company: string, orgId?: string, details?: any) => {
-        // Mocking invitation for now
-        return { success: true };
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) throw new Error('Brak aktywnej sesji');
+
+        const response = await fetch('/api/auth/invite', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session.access_token}`
+            },
+            body: JSON.stringify({
+                name,
+                email,
+                company,
+                orgId,
+                details
+            })
+        });
+
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Błąd podczas zapraszania klienta');
+
+        return result;
     },
 
     updateUserProfile: async (userId: string, updates: any) => {
