@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { User, Ticket, Folder, TicketStatus, TicketPriority, TicketCategory } from '@/types';
+import { User, Ticket, Folder, TicketStatus, TicketCategory } from '@/types';
 import { backend } from '@/services/api';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { DashboardHeader } from '@/components/admin/DashboardHeader';
@@ -16,6 +16,7 @@ import { InvoiceGeneratorModal } from '@/components/admin/modals/InvoiceGenerato
 import { TicketForm } from '@/components/TicketForm';
 import { Modal } from '@/components/legacy/UIComponents';
 import { KnowledgeBase } from '@/components/KnowledgeBase';
+import { Sparkles } from 'lucide-react';
 
 interface AdminPortalProps {
     user: User;
@@ -61,11 +62,6 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ user }) => {
             ]);
             setTickets(tData);
             setClients(cData);
-
-            if (selectedClientId !== 'ALL') {
-                const fData = await backend.getFolders(selectedClientId);
-                setFolders(fData);
-            }
         } catch (e) {
             console.error(e);
         } finally {
@@ -76,9 +72,11 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ user }) => {
     useEffect(() => {
         if (selectedClientId !== 'ALL') {
             backend.getFolders(selectedClientId).then(setFolders).catch(console.error);
+            setViewMode('list');
         } else {
             setFolders([]);
             setActiveFolderId(null);
+            setViewMode('dashboard');
         }
     }, [selectedClientId]);
 
@@ -112,7 +110,13 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ user }) => {
     };
 
     return (
-        <div className="flex h-screen bg-gk-950 overflow-hidden font-sans">
+        <div className="flex h-screen bg-gk-950 text-slate-200 font-sans overflow-hidden selection:bg-accent-red/20 selection:text-accent-red">
+            {/* Background */}
+            <div className="fixed inset-0 z-0 pointer-events-none">
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-900/10 rounded-full blur-[120px]" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-900/10 rounded-full blur-[120px]" />
+            </div>
+
             <AdminSidebar
                 clients={clients}
                 selectedClientId={selectedClientId}
@@ -127,81 +131,87 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ user }) => {
                 setIsSidebarOpen={setIsSidebarOpen}
                 onInviteClient={() => setIsInviteModalOpen(true)}
                 onOpenSettings={() => setIsSettingsOpen(true)}
-                onAddMember={(orgId, companyName) => { }} // Logic can be added later
+                onAddMember={(orgId, companyName) => { }}
                 onOpenClientCard={(client) => setIsClientCardOpen(client)}
                 onEditClient={(client) => setIsEditClientOpen(client)}
                 onDeleteClient={async (id) => { if (confirm("Usunąć klienta?")) await backend.deleteTicket(id); loadInitialData(); }}
             />
 
-            <main className="flex-1 flex flex-col relative overflow-hidden">
-                <DashboardHeader
-                    selectedClientId={selectedClientId}
-                    clients={clients}
-                    isSidebarOpen={isSidebarOpen}
-                    setIsSidebarOpen={setIsSidebarOpen}
-                    currentMonth={currentMonth}
-                    setCurrentMonth={setCurrentMonth}
-                    sortMode={sortMode}
-                    setSortMode={setSortMode}
-                    viewMode={viewMode}
-                    setViewMode={setViewMode}
-                    onOpenCreateModal={() => setIsCreateTicketOpen(true)}
-                    categoryFilter={categoryFilter}
-                    setCategoryFilter={setCategoryFilter as any}
-                    isAdmin={true}
-                    onToggleAi={() => setIsAiSidebarOpen(!isAiSidebarOpen)}
-                />
+            {/* Main Layout Container - Flex Row to support Side-by-Side AI */}
+            <div className="flex-1 flex relative z-10 overflow-hidden">
 
-                <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
-                    {viewMode === 'knowledge' ? (
-                        <KnowledgeBase user={user} clients={clients} selectedClientId={selectedClientId} />
-                    ) : selectedClientId === 'ALL' && viewMode === 'dashboard' ? (
-                        <AdminDashboardOverview
-                            tickets={tickets}
-                            clients={clients}
-                            onNavigateToClient={(clientId) => { setSelectedClientId(clientId); setViewMode('list'); }}
-                            onOpenTicket={(ticket) => setSelectedTicket(ticket)}
-                        />
-                    ) : (
-                        <TicketListView
-                            viewMode={viewMode as any}
-                            selectedClientId={selectedClientId}
-                            clients={clients}
-                            activeFolderId={activeFolderId}
-                            setActiveFolderId={setActiveFolderId}
-                            folders={folders}
-                            setIsFolderManagerOpen={setIsFolderManagerOpen}
-                            setEditingFolder={() => { }}
-                            categoryFilter={categoryFilter}
-                            setCategoryFilter={setCategoryFilter as any}
-                            filteredTickets={filteredTickets}
-                            ticketsForFinance={tickets} // Generic bypass for now
-                            user={user}
-                            currentMonth={currentMonth}
-                            onTicketsUpdated={setTickets}
-                            onOpenTicketDetail={setSelectedTicket}
-                            onStatusUpdate={handleStatusUpdate}
-                            onOpenInvoiceGenerator={() => setIsInvoiceModalOpen(true)}
-                        />
-                    )}
+                {/* Content Column */}
+                <div className="flex-1 flex flex-col overflow-hidden min-w-0 transition-all duration-300">
+                    <DashboardHeader
+                        selectedClientId={selectedClientId}
+                        clients={clients}
+                        isSidebarOpen={isSidebarOpen}
+                        setIsSidebarOpen={setIsSidebarOpen}
+                        currentMonth={currentMonth}
+                        setCurrentMonth={setCurrentMonth}
+                        sortMode={sortMode}
+                        setSortMode={setSortMode}
+                        viewMode={viewMode}
+                        setViewMode={setViewMode}
+                        onOpenCreateModal={() => setIsCreateTicketOpen(true)}
+                        categoryFilter={categoryFilter}
+                        setCategoryFilter={setCategoryFilter as any}
+                        isAdmin={true}
+                    />
+
+                    <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+                        {viewMode === 'knowledge' ? (
+                            <KnowledgeBase user={user} clients={clients} selectedClientId={selectedClientId} />
+                        ) : selectedClientId === 'ALL' && viewMode === 'dashboard' ? (
+                            <AdminDashboardOverview
+                                tickets={tickets}
+                                clients={clients}
+                                onNavigateToClient={(clientId) => { setSelectedClientId(clientId); setViewMode('list'); }}
+                                onOpenTicket={(ticket) => setSelectedTicket(ticket)}
+                            />
+                        ) : (
+                            <TicketListView
+                                viewMode={viewMode as any}
+                                selectedClientId={selectedClientId}
+                                clients={clients}
+                                activeFolderId={activeFolderId}
+                                setActiveFolderId={setActiveFolderId}
+                                folders={folders}
+                                setIsFolderManagerOpen={setIsFolderManagerOpen}
+                                setEditingFolder={() => { }}
+                                categoryFilter={categoryFilter}
+                                setCategoryFilter={setCategoryFilter as any}
+                                filteredTickets={filteredTickets}
+                                ticketsForFinance={tickets}
+                                user={user}
+                                currentMonth={currentMonth}
+                                onTicketsUpdated={setTickets}
+                                onOpenTicketDetail={setSelectedTicket}
+                                onStatusUpdate={handleStatusUpdate}
+                                onOpenInvoiceGenerator={() => setIsInvoiceModalOpen(true)}
+                            />
+                        )}
+                    </div>
                 </div>
-            </main>
 
-            <AISidebar
-                isOpen={isAiSidebarOpen}
-                onClose={() => setIsAiSidebarOpen(false)}
-                contextData={{
-                    tickets: tickets,
-                    clients: clients,
-                    revenue: 0, // Simplified for now
-                    month: currentMonth,
-                    selectedTicket: selectedTicket,
-                    activeClientId: selectedClientId
-                }}
-                onAction={(action) => {
-                    if (action.type === 'REFRESH_DATA') loadInitialData();
-                }}
-            />
+                {/* AI Sidebar - Push Mode */}
+                <AISidebar
+                    isOpen={isAiSidebarOpen}
+                    onClose={() => setIsAiSidebarOpen(false)}
+                    variant="push"
+                    contextData={{
+                        tickets: tickets,
+                        clients: clients,
+                        revenue: tickets.filter(t => t.status === TicketStatus.DONE).reduce((acc, t) => acc + Number(t.price || 0), 0),
+                        month: currentMonth,
+                        selectedTicket: selectedTicket,
+                        activeClientId: selectedClientId
+                    }}
+                    onAction={(action) => {
+                        if (action.type === 'REFRESH_DATA') loadInitialData();
+                    }}
+                />
+            </div>
 
             {/* MODALS */}
             <TicketDetailModal
@@ -269,6 +279,17 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ user }) => {
                     folders={folders}
                 />
             </Modal>
+
+            {/* Floating AI Button - 1:1 Restoration */}
+            {!isAiSidebarOpen && (
+                <button
+                    onClick={() => setIsAiSidebarOpen(true)}
+                    className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-indigo-600/30 hover:scale-105 transition-transform border border-white/20 animate-in slide-in-from-bottom-10 fade-in duration-500"
+                    title="Asystent AI"
+                >
+                    <Sparkles size={24} />
+                </button>
+            )}
         </div>
     );
 };
