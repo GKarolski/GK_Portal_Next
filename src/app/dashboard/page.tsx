@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { User, Ticket, TicketStatus, TicketPriority, TicketCategory, DeviceType, MarketingPlatform } from '@/types';
