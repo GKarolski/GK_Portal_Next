@@ -1,6 +1,5 @@
-"use client";
-
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { User, Ticket, TicketStatus, TicketPriority, TicketCategory, DeviceType, MarketingPlatform } from '@/types';
 import { Button } from '@/components/ui/Button';
 import { Input, TextArea } from '@/components/ui/Input';
@@ -91,6 +90,12 @@ export default function ClientDashboardPage() {
     });
 
     const isLoading = isAuthLoading || isTicketsLoading;
+
+    useEffect(() => {
+        if (!isAuthLoading && user && !user.organizationId) {
+            router.push('/checkout');
+        }
+    }, [user, isAuthLoading, router]);
 
     if (isAuthLoading) return (
         <div className="h-screen bg-gk-950 flex items-center justify-center">
