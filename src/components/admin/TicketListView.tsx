@@ -116,7 +116,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
                     tickets={filteredTickets}
                     onUpdateTicket={async (tid, field, val) => {
                         await backend.updateTicketStatus(tid, val as TicketStatus);
-                        const updated = await backend.getTickets(currentMonth);
+                        const updated = await backend.getTickets(user, currentMonth);
                         onTicketsUpdated(updated);
                     }}
                     onOpenTicket={onOpenTicketDetail}
