@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { createClient } from '@supabase/supabase-js';
+import { resend, EMAIL_FROM } from '@/lib/email';
+import { InvitationEmail } from '@/emails/InvitationEmail';
+import React from 'react';
 
 export async function POST(req: NextRequest) {
     try {
@@ -71,6 +74,7 @@ export async function POST(req: NextRequest) {
         }
 
         let targetOrgId = orgId;
+        const isNewOrg = !orgId;
 
         // Create new organization if none provided
         if (!targetOrgId) {
@@ -89,11 +93,13 @@ export async function POST(req: NextRequest) {
             console.log('[INVITE] New Org Created ID:', targetOrgId);
         }
 
-        // 4. Invite User with Metadata
-        console.log('[INVITE] Sending Supabase Invitation to:', email);
+        // 4. Create User (invite or direct create)
+        console.log('[INVITE] Creating user for:', email);
 
         let inviteResult;
         let mailSent = true;
+        const origin = new URL(req.url).origin;
+        const loginUrl = `${origin}/login`;
 
         try {
             const { data, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
@@ -109,7 +115,7 @@ export async function POST(req: NextRequest) {
                     avatar_url: details?.avatar,
                     role_in_org: orgId ? 'MEMBER' : 'OWNER'
                 },
-                redirectTo: `${new URL(req.url).origin}/login`
+                redirectTo: loginUrl
             });
 
             if (error) throw error;
@@ -120,8 +126,8 @@ export async function POST(req: NextRequest) {
             // Fallback: Directly create the user without sending an invite email immediately
             const { data, error: createError } = await supabaseAdmin.auth.admin.createUser({
                 email: email,
-                password: Math.random().toString(36).slice(-12), // Temporary random password
-                email_confirm: true, // Auto-confirm to ensure it appears in profiles
+                password: Math.random().toString(36).slice(-12),
+                email_confirm: true,
                 user_metadata: {
                     name: name,
                     company_name: company,
@@ -138,7 +144,6 @@ export async function POST(req: NextRequest) {
 
             if (createError) {
                 console.error('[INVITE] Direct Create Fallback failed:', createError);
-                // If the user already exists, we might want to just link them, but for now let's return the error
                 return NextResponse.json({ error: 'Błąd podczas tworzenia użytkownika: ' + createError.message }, { status: 500 });
             }
 
@@ -146,14 +151,47 @@ export async function POST(req: NextRequest) {
             mailSent = false;
         }
 
-        console.log('[INVITE] Client operational. Mail sent:', mailSent, 'User ID:', inviteResult.user.id);
+        // 5. Send branded invitation email via Resend (regardless of Supabase invite success)
+        let resendMailSent = false;
+        if (process.env.RESEND_API_KEY) {
+            try {
+                console.log('[INVITE] Sending branded email via Resend to:', email);
+                const { error: resendError } = await resend.emails.send({
+                    from: EMAIL_FROM,
+                    to: email,
+                    subject: `Zaproszenie do GK Portal — ${company}`,
+                    react: React.createElement(InvitationEmail, {
+                        recipientName: name,
+                        companyName: company,
+                        inviteUrl: loginUrl,
+                        isNewOrg: isNewOrg,
+                    }),
+                });
+
+                if (resendError) {
+                    console.error('[INVITE] Resend send error:', resendError);
+                } else {
+                    console.log('[INVITE] Resend email sent successfully');
+                    resendMailSent = true;
+                    mailSent = true; // Override: we sent something
+                }
+            } catch (resendCatch: any) {
+                console.error('[INVITE] Resend exception:', resendCatch.message);
+            }
+        } else {
+            console.warn('[INVITE] RESEND_API_KEY not set, skipping branded email');
+        }
+
+        console.log('[INVITE] Client operational. Supabase mail:', mailSent, 'Resend mail:', resendMailSent, 'User ID:', inviteResult.user.id);
 
         return NextResponse.json({
             success: true,
             orgId: targetOrgId,
             userId: inviteResult.user.id,
             mailSent: mailSent,
-            message: mailSent ? 'Zaproszenie wysłane pomyślnie.' : 'Klient został utworzony pomyślnie, ale wystąpił problem z wysyłką e-maila zapraszającego (prawdopodobnie limity serwera). Klient jest już widoczny na liście.'
+            message: mailSent
+                ? 'Zaproszenie wysłane pomyślnie.'
+                : 'Klient został utworzony pomyślnie, ale wystąpił problem z wysyłką e-maila zapraszającego (prawdopodobnie limity serwera). Klient jest już widoczny na liście.'
         });
 
     } catch (error: any) {

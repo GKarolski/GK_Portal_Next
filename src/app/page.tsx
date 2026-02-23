@@ -218,6 +218,16 @@ export default function LandingPage() {
                             </div>
                             <div className="text-[9px] font-mono text-[#52525b]">2h temu</div>
                           </div>
+                          <div className="flex items-center justify-between p-3 rounded-lg bg-[#18181b] border border-[#27272a] hover:border-accent-red/30 transition-colors group">
+                            <div className="flex items-center gap-4">
+                              <div className="w-8 h-8 rounded bg-emerald-500/10 text-emerald-500 font-bold text-[10px] flex items-center justify-center border border-emerald-500/20">S</div>
+                              <div>
+                                <div className="text-[11px] font-bold text-white group-hover:text-accent-red transition-colors capitalize tracking-tight">Studio 44</div>
+                                <div className="text-[9px] text-[#71717a] font-medium italic">Zaakceptowano wycenę &quot;Redesign Logo&quot;</div>
+                              </div>
+                            </div>
+                            <div className="text-[9px] font-mono text-[#52525b]">5h temu</div>
+                          </div>
                         </div>
                       </div>
 
@@ -225,21 +235,31 @@ export default function LandingPage() {
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center gap-2">
                             <BarChart2 size={16} className="text-emerald-500" />
-                            <span className="text-xs font-bold text-white uppercase tracking-widest">Rozwój</span>
+                            <span className="text-xs font-bold text-white uppercase tracking-widest">Przychody</span>
+                          </div>
+                          <div className="flex gap-1">
+                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-[#27272a] text-[#71717a]">3M</span>
+                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500 text-black font-bold">6M</span>
+                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-[#27272a] text-[#71717a]">1R</span>
                           </div>
                         </div>
                         <div className="mb-4">
-                          <div className="text-3xl font-bold text-emerald-500 tracking-tighter">+45.2%</div>
-                          <div className="text-[9px] text-[#52525b] uppercase font-bold tracking-widest">Wzrost m/m</div>
+                          <div className="text-3xl font-bold text-emerald-500 tracking-tighter">45 200 PLN</div>
+                          <div className="text-[9px] text-[#52525b] uppercase font-bold tracking-widest">Suma z wybranego okresu</div>
                         </div>
                         <div className="flex items-end justify-between gap-1 flex-1 mt-auto h-24">
-                          {[40, 55, 35, 70, 60, 90].map((h, i) => (
-                            <div
-                              key={i}
-                              className={`w-full rounded-t-sm transition-all duration-500 hover:brightness-125 ${i === 5 ? 'bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'bg-[#18181b]'}`}
-                              style={{ height: `${h}%` }}
-                            ></div>
-                          ))}
+                          {[40, 55, 35, 70, 60, 90].map((h, i) => {
+                            const months = ['STY', 'LUT', 'MAR', 'KWI', 'MAJ', 'CZE'];
+                            return (
+                              <div key={i} className="w-full relative group">
+                                <div
+                                  className={`w-full rounded-t-sm transition-all duration-500 hover:brightness-125 ${i === 5 ? 'bg-emerald-900/40 border-t-2 border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'bg-[#18181b]'}`}
+                                  style={{ height: `${h}%` }}
+                                ></div>
+                                <div className={`text-center text-[8px] absolute -bottom-4 w-full ${i === 5 ? 'text-emerald-500 font-bold' : 'text-[#52525b]'}`}>{months[i]}</div>
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
                     </div>
@@ -344,6 +364,7 @@ export default function LandingPage() {
                 <li className="flex items-center gap-3 text-sm text-slate-300 font-medium"><Check size={16} className="text-accent-red" /> Nielimitowani Klienci</li>
                 <li className="flex items-center gap-3 text-sm text-slate-300 font-medium"><Check size={16} className="text-accent-red" /> 100 GB Przestrzeni</li>
                 <li className="flex items-center gap-3 text-sm text-slate-300 font-medium"><Check size={16} className="text-accent-red" /> Priorytetowy Support 24/7</li>
+                <li className="flex items-center gap-3 text-sm text-slate-300 font-medium"><Check size={16} className="text-accent-red" /> Dedykowany Adres IP</li>
               </ul>
 
               <Link href="/register?plan=AGENCY" className="w-full py-3 rounded-xl border border-white/10 hover:bg-white/5 text-center transition-all font-bold tracking-tight">Wybierz Agency</Link>
@@ -360,7 +381,7 @@ export default function LandingPage() {
           <h2 className="text-4xl font-bold mb-6 tracking-tight">Gotowy na transformację procesów?</h2>
           <p className="text-slate-400 mb-10 text-lg font-medium italic whitespace-nowrap">Dołącz do liderów automatyzacji i skup się na tym, co naprawdę generuje zysk.</p>
           <Link href="/register?plan=STARTER" className="inline-flex items-center gap-4 text-white bg-[#171717] hover:bg-[#262626] border border-white/10 px-8 py-4 rounded-xl font-bold transition-all shadow-xl">
-            Zacznij od Startera <ArrowRight size={18} className="text-accent-red" />
+            Zacznij od Startera (89 zł) <ArrowRight size={18} className="text-accent-red" />
           </Link>
         </div>
       </section>

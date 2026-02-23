@@ -110,14 +110,14 @@ export const backend = {
                 platform: payload.platform,
                 budget: payload.budget,
                 error_date: payload.errorDate,
-                attachments: payload.attachments || [],
-                subtasks: payload.initialSubtasks ? payload.initialSubtasks.map((title: string) => ({
+                attachments_json: payload.attachments || [],
+                subtasks_json: payload.initialSubtasks ? payload.initialSubtasks.map((title: string) => ({
                     id: crypto.randomUUID(),
                     title,
                     isCompleted: false,
                     isVisibleToClient: true
                 })) : [],
-                history_log: [{
+                history_json: [{
                     date: new Date().toISOString(),
                     content: 'Zgłoszenie utworzone.'
                 }]
@@ -200,7 +200,7 @@ export const backend = {
             isActive: p.is_active,
             organizationId: p.organization_id,
             roleInOrg: p.role_in_org,
-            avatar: p.avatar_url
+            avatar: p.avatar
         }));
     },
 
@@ -232,7 +232,7 @@ export const backend = {
             nip: p.nip,
             website: p.website,
             adminNotes: p.admin_notes,
-            avatar: p.avatar_url,
+            avatar: p.avatar,
             isVip: p.is_vip,
             roleInOrg: p.role_in_org
         }));
@@ -281,7 +281,26 @@ export const backend = {
     },
 
     triggerPasswordReset: async (userId: string) => {
-        // Supabase standard: supabase.auth.resetPasswordForEmail(email)
+        // Lookup email from profiles, then trigger Supabase password reset
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('email')
+            .eq('id', userId)
+            .single();
+
+        if (!profile?.email) {
+            return { success: false, error: 'Nie znaleziono profilu użytkownika' };
+        }
+
+        const { error } = await supabase.auth.resetPasswordForEmail(profile.email, {
+            redirectTo: `${window.location.origin}/login`,
+        });
+
+        if (error) {
+            console.error('[RESET] Error:', error);
+            return { success: false, error: error.message };
+        }
+
         return { success: true };
     },
 
