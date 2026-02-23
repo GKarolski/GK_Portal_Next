@@ -66,10 +66,10 @@ export const backend = {
         // Map snake_case to camelCase if necessary (though current types seem mixed)
         return (data || []).map(t => ({
             ...t,
-            clientId: t.created_by_user_id, // legacy support for TicketListView
+            clientId: t.created_by_user_id,
             clientName: t.client_name,
-            organizationId: t.organization_id, // alias 
-            createdByUserId: t.created_by_user_id, // alias
+            organizationId: t.organization_id,
+            createdByUserId: t.created_by_user_id,
             createdAt: t.created_at,
             publicNotes: t.public_notes,
             internalNotes: t.internal_notes,
@@ -77,7 +77,10 @@ export const backend = {
             adminDeadline: t.admin_deadline,
             errorDate: t.error_date,
             folderId: t.folder_id,
-            historyLog: t.history_log,
+            historyLog: t.history_json || t.history_log || [],
+            history_log: t.history_json || t.history_log || [],
+            subtasks: t.subtasks_json || t.subtasks || [],
+            attachments: t.attachments_json || t.attachments || [],
             billingType: t.billing_type,
             billingMonth: t.billing_month,
         }));
@@ -111,13 +114,24 @@ export const backend = {
                 budget: payload.budget,
                 error_date: payload.errorDate,
                 attachments_json: payload.attachments || [],
+                attachments: payload.attachments || [],
                 subtasks_json: payload.initialSubtasks ? payload.initialSubtasks.map((title: string) => ({
                     id: crypto.randomUUID(),
                     title,
                     isCompleted: false,
                     isVisibleToClient: true
                 })) : [],
+                subtasks: payload.initialSubtasks ? payload.initialSubtasks.map((title: string) => ({
+                    id: crypto.randomUUID(),
+                    title,
+                    isCompleted: false,
+                    isVisibleToClient: true
+                })) : [],
                 history_json: [{
+                    date: new Date().toISOString(),
+                    content: 'Zgłoszenie utworzone.'
+                }],
+                history_log: [{
                     date: new Date().toISOString(),
                     content: 'Zgłoszenie utworzone.'
                 }]
