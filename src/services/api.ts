@@ -294,6 +294,14 @@ export const backend = {
         return { success: !error, error };
     },
 
+    updateUserProfileColor: async (userId: string, color: string) => {
+        const { error } = await supabase
+            .from('profiles')
+            .update({ color })
+            .eq('id', userId);
+        return { success: !error, error };
+    },
+
     triggerPasswordReset: async (userId: string) => {
         // Lookup email from profiles, then trigger Supabase password reset
         const { data: profile } = await supabase
@@ -326,6 +334,54 @@ export const backend = {
             .eq('organization_id', orgId);
         if (error) throw error;
         return data || [];
+    },
+
+    manageFolder: async (action: 'create' | 'update' | 'delete', payload: any): Promise<{ success: boolean }> => {
+        if (action === 'delete') {
+            const { error } = await supabase
+                .from('folders')
+                .delete()
+                .eq('id', payload.folderId);
+            if (error) throw error;
+            return { success: true };
+        }
+
+        if (action === 'update' && payload.folderId) {
+            const { error } = await supabase
+                .from('folders')
+                .update({
+                    name: payload.name,
+                    color: payload.color,
+                    icon: payload.icon,
+                    automation_rules: payload.automationRules || []
+                })
+                .eq('id', payload.folderId);
+            if (error) throw error;
+            return { success: true };
+        }
+
+        // create
+        const { error } = await supabase
+            .from('folders')
+            .insert({
+                organization_id: payload.organizationId,
+                name: payload.name,
+                color: payload.color,
+                icon: payload.icon || 'folder',
+                automation_rules: payload.automationRules || []
+            });
+        if (error) throw error;
+        return { success: true };
+    },
+
+    deleteUser: async (userId: string): Promise<{ success: boolean }> => {
+        // Soft-delete by deactivating the user's profile
+        const { error } = await supabase
+            .from('profiles')
+            .update({ is_active: false })
+            .eq('id', userId);
+        if (error) throw error;
+        return { success: true };
     },
 
     // --- SETTINGS ---

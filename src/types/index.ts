@@ -190,5 +190,7 @@ export interface AutomationRule {
     id: string;
     folderId: string;
     type: 'FROM_USER' | 'KEYWORD' | 'CATEGORY';
+    field: string;
+    operator: string;
     value: string;
 }

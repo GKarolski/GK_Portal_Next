@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { User } from '@/types';
+import { backend } from '@/services/api';
 import { X, Users, Inbox, MoreVertical, Palette } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -36,7 +37,11 @@ export const ClientSidebar: React.FC<ClientSidebarProps> = ({
 
     const handleColorChange = async (userId: string, color: string) => {
         setLocalUsers(prev => prev.map(u => u.id === userId ? { ...u, color } : u));
-        // TODO: Implement backend.updateUserColor equivalent with Supabase
+        try {
+            await backend.updateUserProfileColor(userId, color);
+        } catch (err) {
+            console.error("Failed to update user color", err);
+        }
         setShowColorPickerId(null);
         setOpenMenuId(null);
     };

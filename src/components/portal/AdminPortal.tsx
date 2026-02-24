@@ -16,6 +16,8 @@ import { InvoiceGeneratorModal } from '@/components/admin/modals/InvoiceGenerato
 import { TicketForm } from '@/components/TicketForm';
 import { Modal } from '@/components/legacy/UIComponents';
 import { KnowledgeBase } from '@/components/KnowledgeBase';
+import TimerWidget from '@/components/TimerWidget';
+import { Sparkles } from 'lucide-react';
 
 interface AdminPortalProps {
     user: User;
@@ -42,18 +44,36 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ user }) => {
     const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [isFolderManagerOpen, setIsFolderManagerOpen] = useState(false);
-    const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
-    const [isEditClientOpen, setIsEditClientOpen] = useState<User | null>(null);
-    const [isClientCardOpen, setIsClientCardOpen] = useState<User | null>(null);
     const [isCreateTicketOpen, setIsCreateTicketOpen] = useState(false);
     const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
 
+    // Client Modals — separate state for invite context
+    const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+    const [inviteOrganizationId, setInviteOrganizationId] = useState<string | null>(null);
+    const [inviteCompany, setInviteCompany] = useState<string>('');
+
+    const [isEditClientOpen, setIsEditClientOpen] = useState<User | null>(null);
+    const [isClientCardOpen, setIsClientCardOpen] = useState<User | null>(null);
+
+    // Folder Manager — focus mode state
+    const [auditFolderId, setAuditFolderId] = useState<string | null>(null);
+    const [isFolderCreateMode, setIsFolderCreateMode] = useState(false);
+
+    // --- Data Fetching ---
     useEffect(() => {
-        loadInitialData();
+        loadData();
     }, [user, currentMonth]);
 
-    const loadInitialData = async () => {
-        setIsLoading(true);
+    // Auto-Refresh Polling (30s)
+    useEffect(() => {
+        const interval = setInterval(() => {
+            loadData(true);
+        }, 30000);
+        return () => clearInterval(interval);
+    }, [user, currentMonth]);
+
+    const loadData = async (silent: boolean = false) => {
+        if (!silent) setIsLoading(true);
         try {
             const [tData, cData] = await Promise.all([
                 backend.getTickets(user, currentMonth),
@@ -64,15 +84,13 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ user }) => {
         } catch (e: any) {
             console.error('Błąd ładowania danych:', e);
         } finally {
-            setIsLoading(false);
+            if (!silent) setIsLoading(false);
         }
     };
 
     useEffect(() => {
         if (selectedClientId !== 'ALL') {
             backend.getFolders(selectedClientId).then(setFolders).catch(console.error);
-            // Don't auto-switch viewMode here to allow users to stay in dashboard if they want
-            // Actually, legacy auto-switches to 'list'
             if (viewMode === 'dashboard') setViewMode('list');
         } else {
             setFolders([]);
@@ -95,10 +113,19 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ user }) => {
         return filtered;
     }, [tickets, selectedClientId, activeFolderId, categoryFilter]);
 
+    // Finance view: only depends on Month + Client, ignores Folder/Category
+    const ticketsForFinance = useMemo(() => {
+        let filtered = tickets;
+        if (selectedClientId !== 'ALL') {
+            filtered = filtered.filter(t => t.organization_id === selectedClientId || t.clientId === selectedClientId);
+        }
+        return filtered;
+    }, [tickets, selectedClientId]);
+
     const handleStatusUpdate = async (ticketId: string, status: TicketStatus) => {
+        // Optimistic update
+        setTickets(prev => prev.map(t => t.id === ticketId ? { ...t, status } : t));
         await backend.updateTicketStatus(ticketId, status);
-        const tData = await backend.getTickets(user, currentMonth);
-        setTickets(tData);
     };
 
     const handleCreateTicket = async (payload: any, clientId: string) => {
@@ -108,6 +135,13 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ user }) => {
         const tData = await backend.getTickets(user, currentMonth);
         setTickets(tData);
         setIsCreateTicketOpen(false);
+    };
+
+    // AI Action Handler
+    const handleAIAction = async (action: any) => {
+        if (action.type === 'REFRESH_DATA') {
+            await loadData(true);
+        }
     };
 
     return (
@@ -125,17 +159,17 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ user }) => {
                 folders={folders}
                 activeFolderId={activeFolderId}
                 setActiveFolderId={setActiveFolderId}
-                onManageFolders={() => setIsFolderManagerOpen(true)}
-                onAddFolder={() => setIsFolderManagerOpen(true)}
-                onEditFolder={(id) => { setActiveFolderId(id); setIsFolderManagerOpen(true); }}
+                onManageFolders={() => { setAuditFolderId(null); setIsFolderCreateMode(false); setIsFolderManagerOpen(true); }}
+                onAddFolder={() => { setAuditFolderId(null); setIsFolderCreateMode(true); setIsFolderManagerOpen(true); }}
+                onEditFolder={(id) => { setAuditFolderId(id); setIsFolderCreateMode(false); setIsFolderManagerOpen(true); }}
                 isSidebarOpen={isSidebarOpen}
                 setIsSidebarOpen={setIsSidebarOpen}
-                onInviteClient={() => setIsInviteModalOpen(true)}
+                onInviteClient={() => { setInviteOrganizationId(null); setInviteCompany(''); setIsInviteModalOpen(true); }}
                 onOpenSettings={() => setIsSettingsOpen(true)}
-                onAddMember={(orgId, companyName) => { }}
+                onAddMember={(orgId, companyName) => { setInviteOrganizationId(orgId); setInviteCompany(companyName); setIsInviteModalOpen(true); }}
                 onOpenClientCard={(client) => setIsClientCardOpen(client)}
                 onEditClient={(client) => setIsEditClientOpen(client)}
-                onDeleteClient={async (id) => { if (confirm("Usunąć klienta?")) await backend.deleteTicket(id); loadInitialData(); }}
+                onDeleteClient={async (id) => { if (confirm("Usunąć?")) { await backend.deleteUser(id); setClients(prev => prev.filter(c => c.id !== id)); } }}
             />
 
             {/* Main Layout Container - Flex Row to support Side-by-Side AI */}
@@ -169,7 +203,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ user }) => {
                             <AdminDashboardOverview
                                 tickets={tickets}
                                 clients={clients}
-                                onNavigateToClient={(clientId) => { setSelectedClientId(clientId); setViewMode('list'); }}
+                                onNavigateToClient={(clientId) => setSelectedClientId(clientId)}
                                 onOpenTicket={(ticket) => setSelectedTicket(ticket)}
                             />
                         ) : (
@@ -185,7 +219,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ user }) => {
                                 categoryFilter={categoryFilter}
                                 setCategoryFilter={setCategoryFilter as any}
                                 filteredTickets={filteredTickets}
-                                ticketsForFinance={tickets}
+                                ticketsForFinance={ticketsForFinance}
                                 user={user}
                                 currentMonth={currentMonth}
                                 onTicketsUpdated={setTickets}
@@ -203,70 +237,21 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ user }) => {
                     onClose={() => setIsAiSidebarOpen(false)}
                     variant="push"
                     contextData={{
-                        tickets: tickets,
+                        tickets: filteredTickets,
                         clients: clients,
                         revenue: tickets.filter(t => t.status === TicketStatus.DONE).reduce((acc, t) => acc + Number(t.price || 0), 0),
                         month: currentMonth,
                         selectedTicket: selectedTicket,
                         activeClientId: selectedClientId
                     }}
-                    onAction={(action) => {
-                        if (action.type === 'REFRESH_DATA') loadInitialData();
-                    }}
+                    onAction={handleAIAction}
                 />
             </div>
 
-            {/* MODALS */}
-            <TicketDetailModal
-                selectedTicket={selectedTicket}
-                onClose={() => setSelectedTicket(null)}
-                user={user}
-                currentMonth={currentMonth}
-                clients={clients}
-                folders={folders}
-                onTicketsUpdated={setTickets}
-            />
-
+            {/* --- MODALS --- */}
             <AdminSettingsModal
                 isOpen={isSettingsOpen}
                 onClose={() => setIsSettingsOpen(false)}
-            />
-
-            <FolderManagerModal
-                isOpen={isFolderManagerOpen}
-                onClose={() => setIsFolderManagerOpen(false)}
-                selectedClientId={selectedClientId}
-                folders={folders}
-                setFolders={setFolders}
-                clients={clients}
-            />
-
-            <InviteClientModal
-                isOpen={isInviteModalOpen}
-                onClose={() => setIsInviteModalOpen(false)}
-                inviteOrganizationId={selectedClientId === 'ALL' ? null : selectedClientId}
-                inviteCompany={clients.find(c => c.id === selectedClientId || c.organizationId === selectedClientId)?.companyName || ''}
-                onSuccess={loadInitialData}
-            />
-
-            <EditClientModal
-                client={isEditClientOpen}
-                onClose={() => setIsEditClientOpen(null)}
-                onSave={loadInitialData}
-            />
-
-            <ClientCardModal
-                client={isClientCardOpen}
-                onClose={() => setIsClientCardOpen(null)}
-                allClients={clients}
-                onEdit={setIsEditClientOpen}
-                onDelete={async (id) => { /* handle delete */ }}
-            />
-
-            <InvoiceGeneratorModal
-                tickets={filteredTickets.filter(t => t.status === TicketStatus.DONE)}
-                isOpen={isInvoiceModalOpen}
-                onClose={() => setIsInvoiceModalOpen(false)}
             />
 
             <Modal
@@ -277,12 +262,78 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ user }) => {
                 <TicketForm
                     mode="create"
                     clients={clients}
-                    users={[]}
+                    users={[user]}
+                    folders={folders}
+                    defaultClientId={selectedClientId !== 'ALL' ? selectedClientId : undefined}
                     onClose={() => setIsCreateTicketOpen(false)}
                     onSubmit={handleCreateTicket}
-                    folders={folders}
                 />
             </Modal>
+
+            <TicketDetailModal
+                selectedTicket={selectedTicket}
+                onClose={() => setSelectedTicket(null)}
+                user={user}
+                currentMonth={currentMonth}
+                clients={clients}
+                folders={folders}
+                onTicketsUpdated={setTickets}
+            />
+
+            <FolderManagerModal
+                isOpen={isFolderManagerOpen}
+                onClose={() => setIsFolderManagerOpen(false)}
+                selectedClientId={selectedClientId}
+                folders={folders}
+                setFolders={setFolders}
+                clients={clients}
+                initialFolderId={auditFolderId}
+                hideList={isFolderCreateMode || !!auditFolderId}
+            />
+
+            <InviteClientModal
+                isOpen={isInviteModalOpen}
+                onClose={() => setIsInviteModalOpen(false)}
+                inviteOrganizationId={inviteOrganizationId}
+                inviteCompany={inviteCompany}
+                onSuccess={async () => {
+                    await loadData(true);
+                }}
+            />
+
+            <EditClientModal
+                client={isEditClientOpen}
+                onClose={() => setIsEditClientOpen(null)}
+                onSave={async () => { const c = await backend.getClients(); setClients(c); }}
+            />
+
+            <ClientCardModal
+                client={isClientCardOpen}
+                onClose={() => { setIsClientCardOpen(null); }}
+                allClients={clients}
+                onEdit={(c) => { setIsClientCardOpen(null); setIsEditClientOpen(c); }}
+                onDelete={async (id) => { if (confirm("Usunąć?")) { await backend.deleteUser(id); setClients(prev => prev.filter(c => c.id !== id)); setIsClientCardOpen(null); } }}
+            />
+
+            <InvoiceGeneratorModal
+                tickets={filteredTickets.filter(t => t.status === TicketStatus.DONE)}
+                isOpen={isInvoiceModalOpen}
+                onClose={() => setIsInvoiceModalOpen(false)}
+            />
+
+            {/* AI FAB Button */}
+            {!isAiSidebarOpen && (
+                <button
+                    onClick={() => setIsAiSidebarOpen(true)}
+                    className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-indigo-600/30 hover:scale-105 transition-transform border border-white/20 animate-in slide-in-from-bottom-10 fade-in duration-500"
+                    title="Asystent AI"
+                >
+                    <Sparkles size={24} />
+                </button>
+            )}
+
+            {/* Floating Timer Widget */}
+            <TimerWidget />
         </div>
     );
 };

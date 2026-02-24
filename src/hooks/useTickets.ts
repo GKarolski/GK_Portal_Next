@@ -55,5 +55,5 @@ export function useTickets(organizationId?: string) {
         }
     };
 
-    return { tickets, isLoading, error, fetchTickets, updateTicketStatus };
+    return { tickets, setTickets, isLoading, error, fetchTickets, updateTicketStatus };
 }
