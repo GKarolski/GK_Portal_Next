@@ -617,4 +617,14 @@ export const backend = {
         }
         return { success: true };
     },
+
+    // --- BILLING (MOCK API) ---
+    async createCheckoutSession(planId: string): Promise<{ url?: string; error?: string }> {
+        // Fallback simulate success
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve({ url: `/dashboard/billing?status=success&plan=${planId}` });
+            }, 500);
+        });
+    }
 };

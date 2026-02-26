@@ -234,27 +234,66 @@ export const ClientCardModal: React.FC<ClientCardModalProps> = ({ client, onClos
                 <div>
                     <h2 className="text-2xl font-bold text-white mb-1">{client.companyName || 'Brak Firmy'}</h2>
                     <p className="text-slate-400">{client.name}</p>
+                    {client.role === 'ADMIN' && <span className="inline-block mt-2 px-3 py-1 bg-accent-red/10 text-accent-red border border-accent-red/20 rounded-full text-xs font-bold uppercase tracking-widest">Administrator</span>}
+                    {client.isVip && <span className="inline-block mt-2 ml-2 px-3 py-1 bg-accent-warning/10 text-amber-500 border border-amber-500/20 rounded-full text-xs font-bold uppercase tracking-widest">Klient VIP</span>}
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
                     <div className="bg-white/5 p-4 rounded-xl border border-white/5">
-                        <p className="text-[10px] text-slate-500 uppercase mb-1">Email</p>
+                        <p className="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Email</p>
                         <p className="text-slate-200 break-all">{client.email}</p>
                     </div>
                     <div className="bg-white/5 p-4 rounded-xl border border-white/5">
-                        <p className="text-[10px] text-slate-500 uppercase mb-1">Telefon</p>
+                        <p className="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Telefon</p>
                         <p className="text-slate-200">{client.phone || '-'}</p>
+                    </div>
+                    <div className="bg-white/5 p-4 rounded-xl border border-white/5">
+                        <p className="text-[10px] text-slate-500 uppercase tracking-widest mb-1">NIP</p>
+                        <p className="text-slate-200">{client.nip || '-'}</p>
+                    </div>
+                    <div className="bg-white/5 p-4 rounded-xl border border-white/5">
+                        <p className="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Strona WWW</p>
+                        <a href={client.website} target="_blank" className="text-blue-400 hover:text-blue-300 hover:underline truncate block">{client.website || '-'}</a>
                     </div>
                 </div>
                 {client.organizationId && (
                     <div className="text-left pt-6 border-t border-white/10 mt-6">
-                        <h3 className="text-sm font-bold text-slate-400 uppercase mb-4 flex items-center gap-2"><Users size={16} /> Pracownicy ({members.length})</h3>
+                        <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <Users size={16} /> Pracownicy Organizacji ({members.length})
+                        </h3>
                         <div className="space-y-2">
                             {members.map(member => (
-                                <div key={member.id} className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5 group">
-                                    <span className="text-sm text-white font-bold">{member.name}</span>
-                                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button onClick={() => { onClose(); onEdit(member); }} className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg"><Settings size={14} /></button>
-                                        <button onClick={() => { if (confirm(`Usunąć ${member.name}?`)) onDelete(member.id); }} className="p-2 text-slate-400 hover:text-red-500"><Trash2 size={14} /></button>
+                                <div key={member.id} className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5 group hover:bg-white/10 transition-colors">
+                                    <div className="flex items-center gap-3 overflow-hidden">
+                                        {member.avatar ? (
+                                            <img src={member.avatar} className="w-8 h-8 rounded-full object-cover" />
+                                        ) : (
+                                            <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-[10px] text-white font-bold">{member.name[0]}</div>
+                                        )}
+                                        <div className="truncate">
+                                            <div className="text-sm font-bold text-white truncate flex items-center gap-2">
+                                                {member.name}
+                                                {member.roleInOrg === 'OWNER' && <span className="text-[8px] bg-accent-red/20 text-accent-red px-1.5 py-0.5 rounded border border-accent-red/20 uppercase">Właściciel</span>}
+                                            </div>
+                                            <div className="text-xs text-slate-500 truncate">{member.email}</div>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button
+                                            onClick={() => { onClose(); onEdit(member); }}
+                                            className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg"
+                                            title="Edytuj"
+                                        >
+                                            <Settings size={14} />
+                                        </button>
+                                        {member.roleInOrg !== 'OWNER' && (
+                                            <button
+                                                onClick={() => { if (confirm(`Usunąć pracownika ${member.name}?`)) onDelete(member.id); }}
+                                                className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg"
+                                                title="Usuń"
+                                            >
+                                                <Trash2 size={14} />
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             ))}

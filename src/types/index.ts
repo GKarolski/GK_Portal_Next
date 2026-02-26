@@ -31,6 +31,7 @@ export interface User {
     phone?: string;
     nip?: string;
     website?: string;
+    isVip?: boolean;
     adminNotes?: string;
     avatar?: string;
     color?: string;
