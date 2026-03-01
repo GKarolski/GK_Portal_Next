@@ -268,18 +268,34 @@ USING (organization_id = public.user_org_id() OR public.is_admin());
 
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
+DECLARE
+  new_org_id UUID;
+  provided_company_name TEXT;
+  provided_org_id UUID;
 BEGIN
+  provided_company_name := new.raw_user_meta_data->>'company_name';
+  provided_org_id := (new.raw_user_meta_data->>'organization_id')::UUID;
+
+  -- Create a new organization if company_name is provided but no organization_id
+  IF provided_company_name IS NOT NULL AND provided_company_name != '' AND provided_org_id IS NULL THEN
+    INSERT INTO public.organizations (name)
+    VALUES (provided_company_name)
+    RETURNING id INTO new_org_id;
+  ELSE
+    new_org_id := provided_org_id;
+  END IF;
+
   INSERT INTO public.profiles (
     id, name, email, role, organization_id, company_name,
     phone, nip, website, admin_notes, avatar, is_active
   )
   VALUES (
     new.id,
-    COALESCE(new.raw_user_meta_data->>'name', new.email),
+    COALESCE(new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'name', new.email),
     new.email,
     COALESCE(new.raw_user_meta_data->>'role', 'CLIENT'),
-    (new.raw_user_meta_data->>'organization_id')::UUID,
-    new.raw_user_meta_data->>'company_name',
+    new_org_id,
+    provided_company_name,
     new.raw_user_meta_data->>'phone',
     new.raw_user_meta_data->>'nip',
     new.raw_user_meta_data->>'website',
