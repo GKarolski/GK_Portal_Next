@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# logs and build files
+*.log
+build_*.txt
+tsc_*.txt
+get_git_log.txt
