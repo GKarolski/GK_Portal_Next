@@ -144,7 +144,7 @@ export default function RegisterPage() {
                         )}
 
                         <Button type="submit" isLoading={isLoading} className="w-full h-12 mt-4">
-                            Zarejestruj się bezpłatnie <ArrowRight className="w-4 h-4 ml-2" />
+                            Zarejestruj się <ArrowRight className="w-4 h-4 ml-2" />
                         </Button>
                     </form>
 
