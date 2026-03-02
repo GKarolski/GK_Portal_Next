@@ -16,9 +16,9 @@ export default function RegisterPage() {
     const { user } = useAuth();
     const router = useRouter();
 
-    // Redirect if already fully registered and provisioned
+    // Redirect if already fully registered and active
     React.useEffect(() => {
-        if (user && user.organizationId) {
+        if (user && user.organizationId && user.isActive) {
             router.push('/dashboard');
         }
     }, [user, router]);
