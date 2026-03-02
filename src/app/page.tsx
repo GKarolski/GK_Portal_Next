@@ -28,6 +28,7 @@ import {
   Settings,
   Rocket,
 } from "lucide-react";
+import PlanSelector from "../components/PlanSelector";
 
 /* ──────────────── animation helpers ──────────────── */
 const fadeUp = {
@@ -609,71 +610,8 @@ export default function LandingPage() {
             </div>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 relative z-10 w-full">
-            {plans.map((plan, idx) => {
-              const price = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
-              const oldPrice = isYearly ? plan.monthlyPrice : null;
-
-              if (plan.featured) {
-                return (
-                  <motion.div key={idx} variants={fadeUp} custom={idx} className="animated-border-box transform lg:-translate-y-4 shadow-[0_20px_50px_-15px_rgba(239,68,68,0.4)]">
-                    <div className="bg-[#0a0a0a]/90 h-full w-full rounded-[calc(1.5rem-2px)] p-6 lg:p-8 flex flex-col relative z-20 backdrop-blur-xl">
-                      {plan.badge && <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-red-500 text-white text-[9px] font-bold px-4 py-1.5 rounded-b-xl uppercase tracking-widest w-max shadow-lg shadow-red-500/50">{plan.badge}</div>}
-                      <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-500 mb-2 mt-4">{plan.name}</h3>
-                      <div className="flex items-end gap-2 mb-1">
-                        <div className="text-4xl lg:text-5xl font-black text-white tracking-tight">{price}<span className="text-xl"> zł</span></div>
-                        {oldPrice && <div className="text-base text-slate-500 line-through font-bold mb-1.5">{oldPrice} zł</div>}
-                      </div>
-                      <div className="text-[10px] text-slate-400 mb-4 font-medium uppercase tracking-wider">/msc</div>
-                      <p className="text-xs text-slate-300 mb-6 pb-4 border-b border-white/10">{plan.desc}</p>
-                      <ul className="space-y-3 mb-6 flex-1">
-                        {plan.features.map((f, fi) => (
-                          <li key={fi} className="flex items-start gap-3 text-white">
-                            <f.icon className={`w-4 h-4 shrink-0 mt-0.5 ${f.purple ? "text-purple-400 drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]" : f.highlight ? "text-red-500" : "text-emerald-500"}`} />
-                            <span className="text-[11px]">{f.text}</span>
-                          </li>
-                        ))}
-                      </ul>
-                      <a href={plan.href} className="btn btn-premium btn-md w-full text-base mt-auto">{plan.cta}</a>
-                    </div>
-                  </motion.div>
-                );
-              }
-              return (
-                <motion.div key={idx} variants={fadeUp} custom={idx} className="glass-panel-light p-6 lg:p-8 rounded-3xl border border-white/5 flex flex-col relative transition-all hover:bg-white/[0.04] hover:-translate-y-1">
-                  <h3 className="text-lg font-bold text-white mb-2">{plan.name}</h3>
-                  <div className="flex items-end gap-2 mb-1">
-                    <div className="text-3xl lg:text-4xl font-black text-white tracking-tight">{price}<span className="text-lg"> zł</span></div>
-                    {oldPrice && <div className="text-sm text-slate-500 line-through font-bold mb-1">{oldPrice} zł</div>}
-                  </div>
-                  <div className="text-[10px] text-slate-500 mb-4 font-medium uppercase tracking-wider">/msc</div>
-                  <p className="text-xs text-slate-400 mb-6 pb-4 border-b border-white/5">{plan.desc}</p>
-                  <ul className="space-y-3 mb-6 flex-1">
-                    {plan.features.map((f, fi) => (
-                      <li key={fi} className="flex items-start gap-3 text-[11px] text-slate-300">
-                        <f.icon className={`w-4 h-4 shrink-0 mt-0.5 ${f.purple ? "text-purple-400" : f.highlight ? "text-red-500" : "text-emerald-500"}`} />
-                        <span>{f.text}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <a href={plan.href} className="btn btn-secondary btn-sm w-full">{plan.cta}</a>
-                </motion.div>
-              );
-            })}
-
-            {/* Enterprise */}
-            <motion.div variants={fadeUp} custom={3} className="glass-panel-light p-6 lg:p-8 rounded-3xl border border-transparent bg-gradient-to-b from-white/[0.05] to-transparent flex flex-col relative transition-all">
-              <h3 className="text-lg font-bold text-slate-400 mb-2">Enterprise</h3>
-              <div className="text-2xl lg:text-3xl font-black text-white mb-1 mt-1 tracking-tight">Kontakt</div>
-              <div className="text-[10px] text-slate-500 mb-4 font-medium uppercase tracking-wider">&nbsp;</div>
-              <p className="text-xs text-slate-400 mb-6 pb-4 border-b border-white/5">Serwery dedykowane i szycie aplikacji pod Twój proces na zamówienie.</p>
-              <ul className="space-y-3 mb-6 flex-1 opacity-70">
-                <li className="flex items-start gap-3 text-[11px] text-slate-300"><Building className="w-4 h-4 text-slate-500 shrink-0" /> Instancja Dedykowana / On-Premise</li>
-                <li className="flex items-start gap-3 text-[11px] text-slate-300"><Lock className="w-4 h-4 text-slate-500 shrink-0" /> Umowa SLA 99.9%</li>
-                <li className="flex items-start gap-3 text-[11px] text-slate-300"><Code2 className="w-4 h-4 text-slate-500 shrink-0" /> Custom Integracje z bankami lub fakturowaniem (API)</li>
-              </ul>
-              <a href="/kontakt" className="btn btn-secondary btn-sm w-full border-slate-700 text-slate-400 hover:text-white mt-auto">Napisz do nas</a>
-            </motion.div>
+          <div className="w-full">
+            <PlanSelector mode="link" />
           </div>
         </motion.div>
       </section>

@@ -42,7 +42,9 @@ function CheckoutContent() {
                         planId: planKey,
                         email: user.email,
                         userId: user.id,
-                        companyName: user.companyName
+                        companyName: user.companyName,
+                        interval: searchParams.get('interval') || 'month',
+                        upsell: searchParams.get('upsell') || 'false'
                     }),
                 });
 

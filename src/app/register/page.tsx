@@ -52,10 +52,17 @@ export default function RegisterPage() {
             setError(error.message);
             setIsLoading(false);
         } else {
-            // Get selected plan from URL or default to STARTER
+            // Get selected plan from URL
             const params = new URLSearchParams(window.location.search);
-            const plan = params.get('plan') || 'STARTER';
-            router.push(`/checkout?plan=${plan}`);
+            const plan = params.get('plan');
+
+            if (plan) {
+                // If plan is explicitly passed (from landing page click), go straight to checkout
+                router.push(`/checkout?plan=${plan}`);
+            } else {
+                // Default flow: direct to the new selection page with upsells
+                router.push(`/choose-plan`);
+            }
         }
     };
 

@@ -9,21 +9,45 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export async function POST(req: Request) {
     try {
-        const { planId, email, userId, companyName } = await req.json();
-        console.log('[STRIPE DEBUG] Received:', { planId, email, userId, companyName });
+        const { planId, email, userId, companyName, interval = 'month', upsell = 'false' } = await req.json();
+        console.log('[STRIPE DEBUG] Received:', { planId, email, userId, companyName, interval, upsell });
 
         if (!userId || !email) {
             return NextResponse.json({ error: 'Brak danych użytkownika w żądaniu.' }, { status: 400 });
         }
 
         // 1. Resolve Price ID
-        const priceMap: Record<string, string> = {
-            'STARTER': 'price_1T2uHHJQcFY2PeiPuSLNImIK',
-            'STANDARD': 'price_1T2uJKJQcFY2PeiPqdpnw4tg',
-            'AGENCY': 'price_1T2uMFJQcFY2PeiPEcCqha2w'
+        const priceMap: Record<string, any> = {
+            'STARTER': {
+                'month': 'price_1T2uHHJQcFY2PeiPuSLNImIK', // replace with actual
+                'year': 'price_1T2uHHJQcFY2PeiPuSLNImIK', // replace with actual
+            },
+            'PROFESSIONAL': { // Formerly STANDARD
+                'month': 'price_1T2uJKJQcFY2PeiPqdpnw4tg', // replace with actual
+                'year': 'price_1T2uJKJQcFY2PeiPqdpnw4tg', // replace with actual
+            },
+            'EXPERT': { // Formerly AGENCY
+                'month': 'price_1T2uMFJQcFY2PeiPEcCqha2w', // replace with actual
+                'year': 'price_1T2uMFJQcFY2PeiPEcCqha2w', // replace with actual
+            },
+            // Discounted Upsell Prices
+            'UPSELL_PROFESSIONAL': {
+                'month': 'price_1T2uJKJQcFY2PeiPqdpnw4tg_discount', // replace with actual discounted price ID
+                'year': 'price_1T2uJKJQcFY2PeiPqdpnw4tg_discount', // replace with actual discounted price ID
+            },
+            'UPSELL_EXPERT': {
+                'month': 'price_1T2uMFJQcFY2PeiPEcCqha2w_discount', // replace with actual discounted price ID
+                'year': 'price_1T2uMFJQcFY2PeiPEcCqha2w_discount', // replace with actual discounted price ID
+            }
         };
 
-        const priceId = priceMap[planId.toUpperCase()] || priceMap.STANDARD;
+        const planKey = upsell === 'true' ? `UPSELL_${planId.toUpperCase()}` : planId.toUpperCase();
+
+        let priceId = priceMap['STARTER']['month'];
+        if (priceMap[planKey] && priceMap[planKey][interval]) {
+            priceId = priceMap[planKey][interval];
+        }
+
         console.log('[STRIPE DEBUG] Using priceId:', priceId);
 
         // 2. Create/Retrieve Stripe Customer
