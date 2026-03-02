@@ -301,7 +301,7 @@ BEGIN
     new.raw_user_meta_data->>'website',
     new.raw_user_meta_data->>'admin_notes',
     new.raw_user_meta_data->>'avatar_url',
-    TRUE
+    FALSE
   );
   RETURN NEW;
 END;

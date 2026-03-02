@@ -187,19 +187,32 @@ export default function ClientDashboardPage() {
 
     useEffect(() => {
         const checkOrgStatus = async () => {
-            if (!isAuthLoading && user && !user.organizationId) {
-                setIsCheckingOrg(true);
-                const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('organization_id')
-                    .eq('id', user.id)
-                    .single();
+            if (!isAuthLoading && user) {
+                if (!user.organizationId) {
+                    setIsCheckingOrg(true);
+                    const { data: profile } = await supabase
+                        .from('profiles')
+                        .select('organization_id, is_active')
+                        .eq('id', user.id)
+                        .single();
 
-                if (profile?.organization_id) {
-                    window.location.reload();
-                    return;
+                    if (profile?.organization_id && profile?.is_active) {
+                        window.location.reload();
+                        return;
+                    }
+                    router.push('/checkout');
+                } else if (!user.isActive) {
+                    // Try to fetch fresh data just to be sure
+                    const { data: profile } = await supabase
+                        .from('profiles')
+                        .select('is_active')
+                        .eq('id', user.id)
+                        .single();
+                        
+                    if (!profile?.is_active) {
+                       router.push('/checkout');
+                    }
                 }
-                router.push('/checkout');
             }
         };
         checkOrgStatus();

@@ -75,23 +75,48 @@ async function handleProvisioning(
 
     console.log(`[STRIPE WEBHOOK] Provisioning for User: ${userId}, Plan: ${planId}, Company: ${companyName}`);
 
-    // 1. Create Organization
-    const { data: org, error: orgError } = await supabaseAdmin
-        .from('organizations')
-        .insert({
-            name: companyName || 'Moja Organizacja',
-            vip_status: planId === 'AGENCY' ? 'VIP' : 'STANDARD',
-        })
-        .select()
+    // Fetch existing profile to check if org exists
+    const { data: profile, error: fetchError } = await supabaseAdmin
+        .from('profiles')
+        .select('organization_id')
+        .eq('id', userId)
         .single();
 
-    if (orgError) throw orgError;
+    if (fetchError) {
+        console.error(`[STRIPE WEBHOOK] Error fetching profile: ${fetchError.message}`);
+        throw fetchError;
+    }
+
+    let orgId = profile?.organization_id;
+
+    // 1. Create Organization if it doesn't exist (fallback)
+    if (!orgId) {
+        const { data: org, error: orgError } = await supabaseAdmin
+            .from('organizations')
+            .insert({
+                name: companyName || 'Moja Organizacja',
+                vip_status: planId === 'AGENCY' ? 'VIP' : 'STANDARD',
+            })
+            .select()
+            .single();
+
+        if (orgError) throw orgError;
+        orgId = org.id;
+    } else {
+        // Update VIP status of existing org
+        await supabaseAdmin
+            .from('organizations')
+            .update({
+                vip_status: planId === 'AGENCY' ? 'VIP' : 'STANDARD',
+            })
+            .eq('id', orgId);
+    }
 
     // 2. Update Profile to active and link to Organization
     const { error: profileError } = await supabaseAdmin
         .from('profiles')
         .update({
-            organization_id: org.id,
+            organization_id: orgId,
             is_active: true,
             role: 'ADMIN' // Full owner of the instance
         })
@@ -104,7 +129,7 @@ async function handleProvisioning(
         userId,
         {
             user_metadata: {
-                organization_id: org.id,
+                organization_id: orgId,
                 role: 'ADMIN'
             }
         }
@@ -112,5 +137,5 @@ async function handleProvisioning(
 
     if (authError) throw authError;
 
-    console.log(`[STRIPE WEBHOOK] SUCCESS: Organization ${org.id} activated for User ${userId}`);
+    console.log(`[STRIPE WEBHOOK] SUCCESS: Organization ${orgId} activated for User ${userId}`);
 }
