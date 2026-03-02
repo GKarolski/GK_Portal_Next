@@ -97,39 +97,81 @@
     transform: scale(0.95);
   }
 
-  .btn { 
-    display: inline-flex; 
-    align-items: center; 
-    justify-content: center; 
-    border-radius: 9999px; 
-    font-weight: 500; 
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-    border: 1px solid transparent; 
+  .animated-border-box {
+    position: relative;
+    border-radius: 1.5rem;
+    overflow: hidden;
   }
+
+  .animated-border-box::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    background: conic-gradient(from var(--angle), transparent 70%, #ef4444 100%);
+    animation: rotate 4s linear infinite;
+    z-index: 0;
+  }
+
+  @property --angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+  }
+
+  @keyframes rotate {
+    to {
+      --angle: 360deg;
+    }
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid transparent;
+  }
+
   .btn-premium {
-    background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); 
+    background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
     color: white;
     box-shadow: 0 10px 30px -10px rgba(239, 68, 68, 0.8);
-    border: 1px solid rgba(255,100,100,0.5);
+    border: 1px solid rgba(255, 100, 100, 0.5);
   }
+
   .btn-premium:hover {
     background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
-    box-shadow: 0 15px 40px -10px rgba(239, 68, 68, 1); 
-    transform: translateY(-2px);
-  }
-  .btn-secondary {
-    background-color: rgba(255,255,255,0.05); 
-    color: white;
-    border-color: rgba(255,255,255,0.1);
-  }
-  .btn-secondary:hover {
-    background-color: rgba(255,255,255,0.1); 
+    box-shadow: 0 15px 40px -10px rgba(239, 68, 68, 1);
     transform: translateY(-2px);
   }
 
-  .btn-lg { padding: 1rem 2rem; font-size: 1.125rem; }
-  .btn-md { padding: 0.75rem 1.5rem; font-size: 0.875rem; }
-  .btn-sm { padding: 0.5rem 1rem; font-size: 0.875rem; }
+  .btn-secondary {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: white;
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+  }
+
+  .btn-lg {
+    padding: 1rem 2rem;
+    font-size: 1.125rem;
+  }
+
+  .btn-md {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+  }
+
+  .btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
 }
 
 /* Custom Scrollbar */

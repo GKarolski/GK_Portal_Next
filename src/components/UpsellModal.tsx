@@ -92,86 +92,129 @@ export default function UpsellModal({ basePlan, isYearly, onClose, inline = fals
 
     const content = (
         <motion.div
-            initial={{ opacity: 0, scale: inline ? 1 : 0.9, y: inline ? 0 : 20 }}
+            initial={{ opacity: 0, scale: inline ? 0.95 : 0.9, y: inline ? 10 : 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={inline ? undefined : { opacity: 0, scale: 0.9, y: 20 }}
-            className={`relative w-full max-w-2xl bg-[#0a0a0a] border border-red-500/30 rounded-3xl shadow-[0_0_50px_rgba(239,68,68,0.15)] overflow-hidden ${inline ? 'mt-8' : ''}`}
+            exit={inline ? { opacity: 0, scale: 0.95, y: -10 } : { opacity: 0, scale: 0.9, y: 20 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className={`relative w-full max-w-4xl mx-auto overflow-hidden ${inline
+                    ? 'bg-transparent mt-4'
+                    : 'bg-[#0a0a0a] border border-red-500/30 rounded-3xl shadow-[0_0_50px_rgba(239,68,68,0.15)]'
+                }`}
         >
-            {/* Decorative background */}
-            <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-red-500/20 to-purple-500/20 pointer-events-none" />
-
             {!inline && (
-                <div className="absolute top-0 right-0 p-4 z-20">
-                    <button onClick={onClose} className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors">
-                        <X className="w-5 h-5" />
-                    </button>
-                </div>
+                <>
+                    {/* Decorative background for popup */}
+                    <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-red-500/20 to-purple-500/20 pointer-events-none" />
+                    <div className="absolute top-0 right-0 p-4 z-20">
+                        <button onClick={onClose} className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors">
+                            <X className="w-5 h-5" />
+                        </button>
+                    </div>
+                </>
             )}
 
-            <div className={`p-8 md:p-10 relative z-10 flex flex-col items-center text-center ${inline ? 'mt-0' : 'mt-4'}`}>
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center text-white mb-6 shadow-lg shadow-red-500/30">
-                    <Sparkles className="w-8 h-8" />
-                </div>
-
-                <h2 className="text-3xl font-extrabold text-white mb-3">Zaraz, zaraz... Mamy dla Ciebie ofertę!</h2>
-                <p className="text-slate-400 mb-8 max-w-md mx-auto text-sm leading-relaxed">
-                    Zauważyliśmy, że wybrałeś pakiet <strong>{basePlan === "STARTER" ? "Starter" : "Professional"}</strong>. Jako nowy klient masz u nas unikalną okazję odblokować funkcje pakietu <strong>{targetPlanInfo.name}</strong> ze stałym rabatem.
-                </p>
-
-                {/* Offer Box */}
-                <div className="w-full bg-white/[0.03] border border-white/10 rounded-2xl p-6 mb-8 flex flex-col md:flex-row items-center gap-6">
-                    <div className="flex-1 text-left space-y-3">
-                        <h3 className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-500 text-lg uppercase tracking-wider">{targetPlanInfo.name}</h3>
-                        <ul className="space-y-2">
-                            {targetPlanInfo.benefits.map((benefit, i) => (
-                                <li key={i} className="flex items-center gap-2 text-xs text-slate-300">
-                                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                                    <span>{benefit}</span>
-                                </li>
-                            ))}
-                        </ul>
+            <div className={`relative z-10 flex flex-col items-center text-center ${inline ? 'p-2' : 'p-8 md:p-10 mt-4'}`}>
+                {/* Header Section */}
+                {inline ? (
+                    <div className="mb-10">
+                        <motion.div
+                            initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-500 text-xs font-bold text-white mb-6 uppercase tracking-widest shadow-[0_0_20px_rgba(239,68,68,0.4)]"
+                        >
+                            <Sparkles className="w-4 h-4" /> Oferta Specjalna
+                        </motion.div>
+                        <h2 className="text-3xl lg:text-5xl font-extrabold text-white mb-4 tracking-tight">Odbierz więcej. Płać mniej.</h2>
+                        <p className="text-slate-400 text-lg max-w-2xl mx-auto leading-relaxed">
+                            Gratulacje! Twój bazowy pakiet <span className="text-white font-medium">{basePlan === "STARTER" ? "Starter" : "Professional"}</span> jest gotowy.
+                            Tylko teraz, przez najbliższe 24 godziny, możesz ulepszyć go do poziomu <span className="text-red-400 font-bold">{targetPlanInfo.name}</span> ze stałym rabatem.
+                        </p>
                     </div>
-                    <div className="shrink-0 flex flex-col items-center justify-center min-w-[140px] border-t md:border-t-0 md:border-l border-white/10 pt-4 md:pt-0 md:pl-6">
-                        <div className="text-[10px] text-red-400 font-bold uppercase tracking-widest mb-1">Teraz Tylko</div>
-                        <div className="flex items-end gap-2 mb-1">
-                            <div className="text-4xl font-black text-white">{discountedPrice} <span className="text-lg">zł</span></div>
+                ) : (
+                    <>
+                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center text-white mb-6 shadow-lg shadow-red-500/30">
+                            <Sparkles className="w-8 h-8" />
                         </div>
-                        <div className="text-xs text-slate-500 line-through">Zamiast {targetPlanInfo.originalPrice} zł</div>
-                        <div className="mt-2 text-[10px] bg-red-500/10 text-red-500 px-2 py-1 rounded-md border border-red-500/20">
-                            -{discountPercent}% RABATU
+                        <h2 className="text-3xl font-extrabold text-white mb-3">Zaraz, zaraz... Mamy dla Ciebie ofertę!</h2>
+                        <p className="text-slate-400 mb-8 max-w-md mx-auto text-sm leading-relaxed">
+                            Zauważyliśmy, że wybrałeś pakiet <strong>{basePlan === "STARTER" ? "Starter" : "Professional"}</strong>. Jako nowy klient masz u nas unikalną okazję odblokować funkcje pakietu <strong>{targetPlanInfo.name}</strong> ze stałym rabatem.
+                        </p>
+                    </>
+                )}
+
+                {/* Offer Box (Inline looks like a premium pricing card) */}
+                <div className={`w-full max-w-2xl mx-auto flex flex-col ${inline ? 'animated-border-box my-4 shadow-[0_20px_50px_-15px_rgba(239,68,68,0.4)] p-1' : 'bg-white/[0.03] border border-white/10 rounded-2xl p-6 mb-8 md:flex-row gap-6'}`}>
+                    <div className={`${inline ? 'bg-[#0a0a0a]/90 backdrop-blur-xl rounded-[calc(1.5rem-2px)] p-8 lg:p-10 flex flex-col relative z-20' : 'flex-1 text-left space-y-3'}`}>
+                        {inline && (
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-red-500 text-white text-[10px] font-bold px-6 py-1.5 rounded-b-xl uppercase tracking-widest w-max shadow-lg shadow-red-500/50">
+                                Ekskluzywny Upgrade
+                            </div>
+                        )}
+
+                        {!inline && <h3 className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-500 text-lg uppercase tracking-wider">{targetPlanInfo.name}</h3>}
+
+                        <div className={`flex ${inline ? 'flex-col sm:flex-row justify-between items-start sm:items-center mt-6 mb-8 border-b border-white/10 pb-8 gap-6' : 'flex-col items-center justify-center min-w-[140px] border-t md:border-t-0 md:border-l border-white/10 pt-4 md:pt-0 md:pl-6'}`}>
+                            {inline && (
+                                <div className="text-left">
+                                    <h3 className="text-2xl font-bold text-white mb-2">{targetPlanInfo.name}</h3>
+                                    <div className="text-sm text-slate-400">Płacisz <span className="text-white font-medium">{discountedPrice} zł</span> zamiast <span className="line-through">{targetPlanInfo.originalPrice} zł</span> co {isYearly ? 'rok' : 'miesiąc'}.</div>
+                                </div>
+                            )}
+
+                            <div className={`flex flex-col ${inline ? 'items-end' : 'items-center justify-center'}`}>
+                                {!inline && <div className="text-[10px] text-red-400 font-bold uppercase tracking-widest mb-1">Teraz Tylko</div>}
+                                <div className="flex items-end gap-2 mb-1">
+                                    <div className={`font-black text-white ${inline ? 'text-4xl lg:text-5xl' : 'text-4xl'}`}>{discountedPrice} <span className="text-xl">zł</span></div>
+                                    <span className="text-slate-500 line-through text-lg mb-1.5 ml-1">{targetPlanInfo.originalPrice} zł</span>
+                                </div>
+                                <div className="text-[10px] text-red-400 font-bold uppercase tracking-widest bg-red-500/10 px-3 py-1 rounded border border-red-500/20">
+                                    Oszczędzasz {discountPercent}% na zawsze!
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className={inline ? 'mt-2 text-left' : ''}>
+                            {inline && <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Co zyskujesz:</div>}
+                            <ul className={`space-y-3 ${inline ? 'grid sm:grid-cols-2 gap-x-4 gap-y-3' : 'space-y-2'}`}>
+                                {targetPlanInfo.benefits.map((benefit, i) => (
+                                    <li key={i} className="flex items-center gap-3 text-sm text-slate-300">
+                                        <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                                        <span>{benefit}</span>
+                                    </li>
+                                ))}
+                            </ul>
                         </div>
                     </div>
                 </div>
 
                 {/* Timer */}
                 {timeLeft && (
-                    <div className="mb-8 flex items-center justify-center gap-3">
+                    <div className={`flex items-center justify-center gap-3 ${inline ? 'my-8' : 'mb-8'}`}>
                         <Clock className="w-5 h-5 text-red-500 animate-pulse" />
                         <div className="flex items-center gap-2 font-mono text-lg font-bold text-white">
-                            <span className="bg-[#18181b] px-3 py-1.5 rounded-lg border border-[#27272a]">{String(timeLeft.hours).padStart(2, '0')}</span>
+                            <span className="bg-[#18181b] px-3 py-1.5 rounded-lg border border-[#27272a] shadow-inner">{String(timeLeft.hours).padStart(2, '0')}</span>
                             :
-                            <span className="bg-[#18181b] px-3 py-1.5 rounded-lg border border-[#27272a]">{String(timeLeft.minutes).padStart(2, '0')}</span>
+                            <span className="bg-[#18181b] px-3 py-1.5 rounded-lg border border-[#27272a] shadow-inner">{String(timeLeft.minutes).padStart(2, '0')}</span>
                             :
-                            <span className="bg-[#18181b] px-3 py-1.5 rounded-lg border border-[#27272a] text-red-400">{String(timeLeft.seconds).padStart(2, '0')}</span>
+                            <span className="bg-[#18181b] px-3 py-1.5 rounded-lg border border-[#27272a] text-red-400 shadow-inner">{String(timeLeft.seconds).padStart(2, '0')}</span>
                         </div>
                         <span className="text-xs text-slate-500 font-medium ml-2">do końca promocji</span>
                     </div>
                 )}
 
                 {/* Actions */}
-                <div className="flex flex-col sm:flex-row w-full gap-4">
+                <div className={`flex flex-col sm:flex-row w-full gap-4 ${inline ? 'max-w-2xl' : ''}`}>
                     <button
                         onClick={handleDecline}
-                        className="btn btn-secondary flex-1 py-4 text-sm font-semibold hover:bg-white/5 order-2 sm:order-1"
+                        className={`btn btn-secondary flex-1 font-semibold transition-colors ${inline ? 'py-5 text-base' : 'py-4 text-sm'}`}
                     >
-                        Nie, dziękuję. Zostaję przy {basePlan === "STARTER" ? "Starter" : "Professional"}
+                        Nie, zostaję przy {basePlan === "STARTER" ? "Starter" : "Professional"}
                     </button>
                     <button
                         onClick={handleAccept}
-                        className="btn bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white flex-1 py-4 text-sm font-bold shadow-[0_0_20px_rgba(239,68,68,0.4)] order-1 sm:order-2 flex items-center justify-center gap-2"
+                        className={`btn btn-premium flex-1 font-bold flex items-center justify-center gap-2 transition-all ${inline ? 'py-5 text-base' : 'py-4 text-sm'}`}
                     >
-                        <span>Odbieram {targetPlanInfo.name} z Rabatem</span>
-                        <ArrowRight className="w-4 h-4" />
+                        <span>Aktywuj {targetPlanInfo.name} z Rabatem</span>
+                        <ArrowRight className="w-5 h-5" />
                     </button>
                 </div>
             </div>
