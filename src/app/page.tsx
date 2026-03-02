@@ -285,7 +285,7 @@ export default function LandingPage() {
           </div>
           <div className="flex items-center gap-4">
             <a href="/login" className="text-sm font-medium text-slate-300 hover:text-white px-4 py-2 hover:bg-white/5 rounded-lg transition-colors">Logowanie</a>
-            <a href="/register" className="btn btn-primary btn-md">Dołącz Teraz</a>
+            <a href="#pricing" className="btn btn-primary btn-md">Dołącz Teraz</a>
           </div>
         </div>
       </nav>
@@ -311,7 +311,7 @@ export default function LandingPage() {
           </motion.p>
 
           <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={3} className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
-            <a href="/register" className="btn btn-primary btn-lg w-full sm:w-auto">Rozpocznij Teraz</a>
+            <a href="#pricing" className="btn btn-primary btn-lg w-full sm:w-auto">Rozpocznij Teraz</a>
             <a href="#process" className="btn btn-secondary btn-lg w-full sm:w-auto"><span>Poznaj Funkcje</span> <ArrowDown className="w-5 h-5" /></a>
           </motion.div>
 

@@ -200,7 +200,7 @@ export default function ClientDashboardPage() {
                         window.location.reload();
                         return;
                     }
-                    router.push('/checkout');
+                    router.push('/choose-plan');
                 } else if (!user.isActive) {
                     // Try to fetch fresh data just to be sure
                     const { data: profile } = await supabase
@@ -208,9 +208,9 @@ export default function ClientDashboardPage() {
                         .select('is_active')
                         .eq('id', user.id)
                         .single();
-                        
+
                     if (!profile?.is_active) {
-                       router.push('/checkout');
+                        router.push('/choose-plan');
                     }
                 }
             }

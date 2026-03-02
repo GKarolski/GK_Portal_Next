@@ -80,13 +80,13 @@ export default function UpsellModal({ basePlan, isYearly, onClose }: UpsellModal
     const handleAccept = () => {
         // Apply upsell plan logic here (e.g., specific price ID with discount)
         const interval = isYearly ? 'year' : 'month';
-        window.location.href = `/api/checkout?plan=${targetPlan}&interval=${interval}&upsell=true&base=${basePlan}`;
+        window.location.href = `/checkout?plan=${targetPlan}&interval=${interval}&upsell=true&base=${basePlan}`;
     };
 
     const handleDecline = () => {
         // Proceed with original chosen plan
         const interval = isYearly ? 'year' : 'month';
-        window.location.href = `/api/checkout?plan=${basePlan}&interval=${interval}`;
+        window.location.href = `/checkout?plan=${basePlan}&interval=${interval}`;
     };
 
     return (

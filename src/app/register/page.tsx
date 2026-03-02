@@ -57,8 +57,8 @@ export default function RegisterPage() {
             const plan = params.get('plan');
 
             if (plan) {
-                // If plan is explicitly passed (from landing page click), go straight to checkout
-                router.push(`/checkout?plan=${plan}`);
+                // If plan is explicitly passed (from landing page click), redirect to choice anyway to trigger potential upsells
+                router.push(`/choose-plan?plan=${plan}`);
             } else {
                 // Default flow: direct to the new selection page with upsells
                 router.push(`/choose-plan`);

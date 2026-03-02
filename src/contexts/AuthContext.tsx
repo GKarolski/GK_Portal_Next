@@ -34,7 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 name: session.user.user_metadata.name || session.user.email?.split('@')[0] || 'Użytkownik',
                 email: session.user.email || '',
                 role: session.user.user_metadata.role || 'CLIENT',
-                isActive: true,
+                isActive: false,
                 companyName: session.user.user_metadata.company_name,
                 organizationId: session.user.user_metadata.organization_id,
             });
