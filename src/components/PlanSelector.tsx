@@ -70,8 +70,15 @@ export default function PlanSelector({ mode }: PlanSelectorProps) {
 
                     if (plan.featured) {
                         return (
-                            <motion.div key={idx} variants={fadeUp} custom={idx} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.5 }} className="animated-border-box transform lg:-translate-y-4 shadow-[0_20px_50px_-15px_rgba(239,68,68,0.4)]">
-                                <div className="bg-[#0a0a0a]/90 h-full w-full rounded-[calc(1.5rem-2px)] p-6 lg:p-8 flex flex-col relative z-20 backdrop-blur-xl">
+                            <motion.div key={idx} variants={fadeUp} custom={idx} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.5 }} className="relative p-[1px] rounded-3xl overflow-hidden transform lg:-translate-y-4 shadow-[0_20px_50px_-15px_rgba(239,68,68,0.4)]">
+                                <div
+                                    className="absolute inset-[-100%] z-0 pointer-events-none"
+                                    style={{
+                                        background: 'conic-gradient(from 0deg, transparent 70%, #ef4444 100%)',
+                                        animation: 'spin 4s linear infinite'
+                                    }}
+                                />
+                                <div className="bg-[#0a0a0a] h-full w-full rounded-[calc(1.5rem-1px)] p-6 lg:p-8 flex flex-col relative z-10">
                                     {plan.badge && <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-red-500 text-white text-[9px] font-bold px-4 py-1.5 rounded-b-xl uppercase tracking-widest w-max shadow-lg shadow-red-500/50">{plan.badge}</div>}
                                     <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-500 mb-2 mt-4">{plan.name}</h3>
                                     <div className="flex items-end gap-2 mb-1">

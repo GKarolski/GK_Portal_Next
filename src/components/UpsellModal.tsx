@@ -155,8 +155,15 @@ export default function UpsellModal({ basePlan, isYearly, onClose, inline = fals
                 </div>
 
                 {/* UPSELL OFFER PLAN (Target) */}
-                <div className="relative group animated-border-box shadow-[0_20px_50px_-15px_rgba(239,68,68,0.4)] md:scale-[1.03] origin-left">
-                    <div className="bg-[#0a0a0a]/90 h-full w-full rounded-[calc(2rem-2px)] p-6 lg:p-8 flex flex-col relative z-20 backdrop-blur-xl border border-red-500/20">
+                <div className="relative group p-[1px] rounded-[2rem] overflow-hidden shadow-[0_20px_50px_-15px_rgba(239,68,68,0.4)] md:scale-[1.03] origin-left">
+                    <div
+                        className="absolute inset-[-100%] z-0 pointer-events-none"
+                        style={{
+                            background: 'conic-gradient(from 0deg, transparent 70%, #ef4444 100%)',
+                            animation: 'spin 4s linear infinite'
+                        }}
+                    />
+                    <div className="bg-[#050505] h-full w-full rounded-[calc(2rem-1px)] p-6 lg:p-8 flex flex-col relative z-10">
                         {/* Highlights */}
                         <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-red-500/10 blur-[80px] rounded-full pointer-events-none mix-blend-screen" />
                         <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-gradient-to-r from-red-600 to-red-500 text-white text-[10px] font-bold px-6 py-1.5 rounded-b-xl uppercase tracking-widest w-max shadow-lg shadow-red-500/50">
