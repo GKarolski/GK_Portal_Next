@@ -1,22 +1,22 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 import PlanSelector from "@/components/PlanSelector";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { Loader2, ArrowRight } from "lucide-react";
 
-const fadeUp = {
+const fadeUp: Variants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.25, 0.4, 0.25, 1] } }
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
 };
 
 export default function ChoosePlanPage() {
-    const { user, loading } = useAuth();
+    const { user, isLoading } = useAuth();
     const router = useRouter();
 
     useEffect(() => {
-        if (!loading) {
+        if (!isLoading) {
             if (!user) {
                 router.replace("/login");
             } else if (user.isActive) {
@@ -24,9 +24,9 @@ export default function ChoosePlanPage() {
                 router.replace("/dashboard");
             }
         }
-    }, [user, loading, router]);
+    }, [user, isLoading, router]);
 
-    if (loading || !user) {
+    if (isLoading || !user) {
         return (
             <div className="min-h-screen bg-[#050505] flex items-center justify-center">
                 <Loader2 className="w-8 h-8 text-red-500 animate-spin" />

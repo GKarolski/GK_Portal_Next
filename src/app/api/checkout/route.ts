@@ -38,18 +38,27 @@ export async function POST(req: Request) {
         if (priceMap[planKey] && priceMap[planKey][interval]) {
             priceId = priceMap[planKey][interval];
         }
-        mode: 'subscription',
-            success_url: `${req.headers.get('origin')}/provisioning?plan=${planId}&session_id={CHECKOUT_SESSION_ID}`,
-                cancel_url: `${req.headers.get('origin')}/checkout?plan=${planId}`,
-                    customer_email: email,
-                        metadata: {
-            plan_id: planId,
-            },
-    });
 
-    return NextResponse.json({ url: session.url });
-} catch (error: any) {
-    console.error('Stripe error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
-}
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            line_items: [
+                {
+                    price: priceId,
+                    quantity: 1,
+                },
+            ],
+            mode: 'subscription',
+            success_url: `${req.headers.get('origin')}/provisioning?plan=${planId}&session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${req.headers.get('origin')}/checkout?plan=${planId}`,
+            customer_email: email,
+            metadata: {
+                plan_id: planId,
+            },
+        });
+
+        return NextResponse.json({ url: session.url });
+    } catch (error: any) {
+        console.error('Stripe error:', error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 }
