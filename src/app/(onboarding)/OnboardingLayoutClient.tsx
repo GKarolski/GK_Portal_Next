@@ -1,7 +1,6 @@
 "use client";
 
 import { usePathname } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
 
 export function OnboardingLayoutClient({ children }: { children: React.ReactNode }) {
     const pathname = usePathname() || '';
@@ -28,27 +27,16 @@ export function OnboardingLayoutClient({ children }: { children: React.ReactNode
                 </div>
             </div>
 
-            {/* Content Container (AnimatePresence for child page transitions) */}
-            <div className="flex-1 w-full max-w-[1200px] mx-auto relative z-10 flex flex-col h-full">
-                <AnimatePresence mode="wait">
-                    <motion.div
-                        key={pathname}
-                        initial={{ opacity: 0, scale: 0.98, y: 10 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.98, y: -10 }}
-                        transition={{ duration: 0.4, ease: "easeInOut" }}
-                        className="w-full flex-1 flex flex-col"
-                    >
-                        {children}
-                    </motion.div>
-                </AnimatePresence>
+            {/* Content Container (Child pages handle their own enter animations) */}
+            <div className="flex-1 w-full max-w-[1200px] mx-auto relative z-10 flex flex-col h-full justify-center">
+                {children}
             </div>
 
             {/* Steps Indicator Bottom - Smoothly transitions its w- width properties */}
             <div className="flex justify-center gap-2 pb-12 pt-6 relative z-10 w-full shrink-0">
-                <div className={`h-1.5 rounded-full transition-all duration-700 ease-in-out ${step >= 1 ? 'w-12 bg-accent-red shadow-[0_0_10px_rgba(239,68,68,0.4)]' : 'w-2 bg-white/30'}`}></div>
-                <div className={`h-1.5 rounded-full transition-all duration-700 ease-in-out ${step >= 2 ? 'w-12 bg-accent-red shadow-[0_0_10px_rgba(239,68,68,0.4)]' : 'w-2 bg-white/30'}`}></div>
-                <div className={`h-1.5 rounded-full transition-all duration-700 ease-in-out ${step >= 3 ? 'w-12 bg-accent-red shadow-[0_0_10px_rgba(239,68,68,0.4)]' : 'w-2 bg-white/30'}`}></div>
+                <div className={`h-1.5 rounded-full transition-all duration-700 ease-in-out ${step === 1 ? 'w-12 bg-accent-red shadow-[0_0_10px_rgba(239,68,68,0.4)]' : step > 1 ? 'w-2 bg-accent-red opacity-50' : 'w-2 bg-white/30'}`}></div>
+                <div className={`h-1.5 rounded-full transition-all duration-700 ease-in-out ${step === 2 ? 'w-12 bg-accent-red shadow-[0_0_10px_rgba(239,68,68,0.4)]' : step > 2 ? 'w-2 bg-accent-red opacity-50' : 'w-2 bg-white/30'}`}></div>
+                <div className={`h-1.5 rounded-full transition-all duration-700 ease-in-out ${step === 3 ? 'w-12 bg-accent-red shadow-[0_0_10px_rgba(239,68,68,0.4)]' : 'w-2 bg-white/30'}`}></div>
             </div>
         </div>
     );
