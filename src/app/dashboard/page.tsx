@@ -183,11 +183,7 @@ export default function ClientDashboardPage() {
     const isLoading = isAuthLoading || isTicketsLoading;
 
     // Guard: Redirect to checkout if no organization or inactive
-    // Initialize as true if we know we need to check, to prevent UI flash
-    const [isCheckingOrg, setIsCheckingOrg] = useState(() => {
-        if (!user) return false;
-        return !user.organizationId || !user.isActive;
-    });
+    const [isCheckingOrg, setIsCheckingOrg] = useState(false);
 
     useEffect(() => {
         const checkOrgStatus = async () => {
@@ -227,7 +223,9 @@ export default function ClientDashboardPage() {
         checkOrgStatus();
     }, [user, isAuthLoading, router]);
 
-    if (isAuthLoading || isCheckingOrg) return (
+    const isMissingOrgOrInactive = user && (!user.organizationId || !user.isActive);
+
+    if (isAuthLoading || isCheckingOrg || isMissingOrgOrInactive) return (
         <div className="h-screen bg-gk-950 flex items-center justify-center">
             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-accent-red"></div>
         </div>
