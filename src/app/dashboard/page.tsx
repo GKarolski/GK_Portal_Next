@@ -202,6 +202,7 @@ export default function ClientDashboardPage() {
                     }
                     router.push('/choose-plan');
                 } else if (!user.isActive) {
+                    setIsCheckingOrg(true);
                     // Try to fetch fresh data just to be sure
                     const { data: profile } = await supabase
                         .from('profiles')
@@ -211,6 +212,10 @@ export default function ClientDashboardPage() {
 
                     if (!profile?.is_active) {
                         router.push('/choose-plan');
+                    } else {
+                        // User actually is active, unblock them
+                        setIsCheckingOrg(false);
+                        window.location.reload();
                     }
                 }
             }
