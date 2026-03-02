@@ -67,26 +67,8 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden bg-gk-950">
-            {/* Background Effects */}
-            <div className="fixed inset-0 z-0">
-                <div className="absolute top-0 right-0 w-[800px] h-[600px] bg-accent-red/5 blur-[120px] rounded-full pointer-events-none"></div>
-                <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-indigo-600/5 blur-[100px] rounded-full pointer-events-none"></div>
-            </div>
-
+        <div className="w-full h-full flex items-center justify-center p-6">
             <div className="w-full max-w-[480px] relative z-10">
-                {/* Logo */}
-                <div className="flex justify-center mb-8">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded bg-gradient-to-tr from-gk-800 to-black border border-white/10 flex items-center justify-center text-accent-red font-bold text-sm shadow-[0_0_15px_rgba(239,68,68,0.3)]">
-                            GK
-                        </div>
-                        <span className="font-bold text-xl tracking-tight text-white uppercase">
-                            GK_<span className="text-accent-red">Digital</span>
-                        </span>
-                    </div>
-                </div>
-
                 <Card className="p-8 md:p-10 border-white/5 bg-white/2 backdrop-blur-2xl">
                     <div className="text-center mb-8">
                         <h1 className="text-2xl font-bold text-white mb-2">Rozpocznij tutaj.</h1>
@@ -162,13 +144,6 @@ export default function RegisterPage() {
                         </p>
                     </div>
                 </Card>
-
-                {/* Steps Indicator */}
-                <div className="flex justify-center gap-2 mt-8">
-                    <div className="w-12 h-1 bg-accent-red rounded-full"></div>
-                    <div className="w-2 h-1 bg-white/10 rounded-full"></div>
-                    <div className="w-2 h-1 bg-white/10 rounded-full"></div>
-                </div>
             </div>
         </div>
     );

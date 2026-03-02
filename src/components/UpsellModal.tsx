@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Sparkles, ArrowRight, X, Clock, CheckCircle2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface UpsellModalProps {
     basePlan: string;
@@ -14,6 +15,7 @@ const UPSELL_DURATION_HOURS = 24;
 const UPSELL_DURATION_MS = UPSELL_DURATION_HOURS * 60 * 60 * 1000;
 
 export default function UpsellModal({ basePlan, isYearly, onClose, inline = false }: UpsellModalProps) {
+    const router = useRouter();
     const [timeLeft, setTimeLeft] = useState<{ hours: number; minutes: number; seconds: number } | null>(null);
 
     // Determine target plan for upsell
@@ -81,13 +83,13 @@ export default function UpsellModal({ basePlan, isYearly, onClose, inline = fals
     const handleAccept = () => {
         // Apply upsell plan logic here (e.g., specific price ID with discount)
         const interval = isYearly ? 'year' : 'month';
-        window.location.href = `/checkout?plan=${targetPlan}&interval=${interval}&upsell=true&base=${basePlan}`;
+        router.push(`/checkout?plan=${targetPlan}&interval=${interval}&upsell=true&base=${basePlan}`);
     };
 
     const handleDecline = () => {
         // Proceed with original chosen plan
         const interval = isYearly ? 'year' : 'month';
-        window.location.href = `/checkout?plan=${basePlan}&interval=${interval}`;
+        router.push(`/checkout?plan=${basePlan}&interval=${interval}`);
     };
 
     const content = (
@@ -97,8 +99,8 @@ export default function UpsellModal({ basePlan, isYearly, onClose, inline = fals
             exit={inline ? { opacity: 0, scale: 0.95, y: -10 } : { opacity: 0, scale: 0.9, y: 20 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
             className={`relative w-full max-w-4xl mx-auto overflow-hidden ${inline
-                    ? 'bg-transparent mt-4'
-                    : 'bg-[#0a0a0a] border border-red-500/30 rounded-3xl shadow-[0_0_50px_rgba(239,68,68,0.15)]'
+                ? 'bg-transparent mt-4'
+                : 'bg-[#0a0a0a] border border-red-500/30 rounded-3xl shadow-[0_0_50px_rgba(239,68,68,0.15)]'
                 }`}
         >
             {!inline && (
