@@ -182,8 +182,12 @@ export default function ClientDashboardPage() {
 
     const isLoading = isAuthLoading || isTicketsLoading;
 
-    // Guard: Redirect to checkout if no organization
-    const [isCheckingOrg, setIsCheckingOrg] = useState(false);
+    // Guard: Redirect to checkout if no organization or inactive
+    // Initialize as true if we know we need to check, to prevent UI flash
+    const [isCheckingOrg, setIsCheckingOrg] = useState(() => {
+        if (!user) return false;
+        return !user.organizationId || !user.isActive;
+    });
 
     useEffect(() => {
         const checkOrgStatus = async () => {
