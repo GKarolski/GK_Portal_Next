@@ -40,25 +40,28 @@ const StripeContainer: React.FC<StripeContainerProps> = ({ clientSecret, publish
                 colorText: '#ffffff',
                 colorDanger: '#ef4444',
                 fontFamily: 'Inter, system-ui, sans-serif',
-                spacingUnit: '4px',
-                borderRadius: '12px',
+                spacingUnit: '3px',
+                borderRadius: '8px',
+                fontSizeBase: '13px',
             },
             rules: {
                 '.Input': {
+                    padding: '8px 12px',
                     border: '1px solid #334155',
                     backgroundColor: '#171717',
                     boxShadow: 'none',
                 },
                 '.Input:focus': {
                     border: '1px solid #ef4444',
-                    boxShadow: '0 0 0 2px rgba(239, 68, 68, 0.2)',
+                    boxShadow: '0 0 0 1px rgba(239, 68, 68, 0.5)',
                 },
                 '.Label': {
                     color: '#94a3b8',
-                    fontWeight: '600',
+                    fontWeight: '700',
                     textTransform: 'uppercase' as const,
-                    fontSize: '11px',
-                    letterSpacing: '0.05em'
+                    fontSize: '9px',
+                    letterSpacing: '0.05em',
+                    marginBottom: '4px'
                 }
             }
         },
