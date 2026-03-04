@@ -58,10 +58,15 @@ export default function RegisterPage() {
             const interval = params.get('interval');
 
             if (plan) {
-                // If plan is explicitly passed (from landing page click), redirect to choice anyway to trigger potential upsells
-                let nextUrl = `/choose-plan?plan=${plan}`;
-                if (interval) nextUrl += `&interval=${interval}`;
-                router.push(nextUrl);
+                // If annual plan or EXPERT, skip the choose-plan step (and upsell) entirely and go to checkout
+                if (interval === "year" || plan.toUpperCase() === "EXPERT") {
+                    router.push(`/checkout?plan=${plan}&interval=${interval || 'month'}`);
+                } else {
+                    // Monthly Starter/Pro go to choose-plan for potential upsell
+                    let nextUrl = `/choose-plan?plan=${plan}`;
+                    if (interval) nextUrl += `&interval=${interval}`;
+                    router.push(nextUrl);
+                }
             } else {
                 // Default flow: direct to the new selection page with upsells
                 router.push(`/choose-plan`);
