@@ -103,16 +103,16 @@ export default function UpsellModal({ basePlan, isYearly, onClose, inline = fals
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={inline ? { opacity: 0, scale: 0.95, y: -10 } : { opacity: 0, scale: 0.9, y: 20 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
-            className={`relative w-full max-w-5xl mx-auto ${inline ? 'mt-8' : ''}`}
+            className={`relative w-full max-w-5xl mx-auto ${inline ? 'mt-4' : ''}`}
         >
-            <div className="text-center mb-10 w-full flex flex-col items-center">
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-500/10 border border-red-500/20 text-xs font-bold text-red-400 mb-6 uppercase tracking-widest shadow-[0_0_20px_rgba(239,68,68,0.2)]">
-                    <Sparkles className="w-4 h-4" /> Jednorazowa Oferta VIP
+            <div className="text-center mb-6 w-full flex flex-col items-center">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-[10px] font-bold text-red-400 mb-3 uppercase tracking-widest shadow-[0_0_20px_rgba(239,68,68,0.2)]">
+                    <Sparkles className="w-3 h-3" /> Jednorazowa Oferta VIP
                 </div>
-                <h2 className="text-3xl md:text-5xl font-black text-white mb-4 tracking-tight leading-tight">
+                <h2 className="text-2xl md:text-4xl font-black text-white mb-2 tracking-tight leading-tight">
                     Skaczemy poziom wyżej?
                 </h2>
-                <p className="text-slate-400 text-lg max-w-2xl mx-auto leading-relaxed">
+                <p className="text-slate-400 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
                     Zanim sfinalizujemy Twoje konto, mamy dla Ciebie ekskluzywny rabat na plan <strong className="text-red-400">{targetPlanInfo.name}</strong>. Zyskaj ogromne możliwości w ułamku ceny.
                 </p>
 
@@ -127,35 +127,35 @@ export default function UpsellModal({ basePlan, isYearly, onClose, inline = fals
                 )}
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6 lg:gap-8 relative z-10 w-full">
+            <div className="grid md:grid-cols-2 gap-4 lg:gap-6 relative z-10 w-full">
                 {/* ACTUALLY CHOSEN PLAN (Base) */}
-                <div className="glass-panel-light p-6 lg:p-8 rounded-[2rem] border border-white/5 flex flex-col relative transition-all opacity-70 hover:opacity-100 bg-[#0a0a0a]/50">
-                    <div className="absolute top-4 right-6 text-[10px] font-bold uppercase tracking-widest text-slate-500 bg-white/5 px-3 py-1 rounded-full border border-white/5">
+                <div className="glass-panel-light p-5 lg:p-6 rounded-[1.5rem] border border-white/5 flex flex-col relative transition-all opacity-70 hover:opacity-100 bg-[#0a0a0a]/50">
+                    <div className="absolute top-4 right-5 text-[9px] font-bold uppercase tracking-widest text-slate-500 bg-white/5 px-2 py-1 rounded-full border border-white/5">
                         Aktualny Wybór
                     </div>
-                    <h3 className="text-xl font-bold text-white mb-2">{basePlanObj.name}</h3>
-                    <div className="flex items-end gap-2 mb-1">
-                        <div className="text-4xl font-black text-slate-300 tracking-tight">{isYearly ? basePlanObj.yearlyPrice : basePlanObj.monthlyPrice}<span className="text-xl text-slate-500"> zł</span></div>
+                    <h3 className="text-lg font-bold text-white mb-1">{basePlanObj.name}</h3>
+                    <div className="flex items-end gap-1 mb-1">
+                        <div className="text-3xl font-black text-slate-300 tracking-tight">{isYearly ? basePlanObj.yearlyPrice : basePlanObj.monthlyPrice}<span className="text-lg text-slate-500"> zł</span></div>
                     </div>
-                    <div className="text-[10px] text-slate-500 mb-4 font-medium uppercase tracking-wider">/{isYearly ? 'rok' : 'msc'}</div>
-                    <p className="text-xs text-slate-400 mb-6 pb-4 border-b border-white/5">{basePlanObj.desc}</p>
+                    <div className="text-[9px] text-slate-500 mb-2 font-medium uppercase tracking-wider">/{isYearly ? 'rok' : 'msc'}</div>
+                    <p className="text-[11px] text-slate-400 mb-4 pb-3 border-b border-white/5">{basePlanObj.desc}</p>
 
-                    <ul className="space-y-3 mb-8 flex-1">
+                    <ul className="space-y-2 mb-5 flex-1">
                         {basePlanObj.features.map((f: any, fi: number) => (
-                            <li key={fi} className="flex items-start gap-3 text-sm text-slate-400">
-                                <CheckCircle2 className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
-                                <span>{f.text}</span>
+                            <li key={fi} className="flex items-start gap-2 text-xs text-slate-400">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-slate-500 shrink-0 mt-0.5" />
+                                <span className="leading-snug">{f.text}</span>
                             </li>
                         ))}
                     </ul>
 
-                    <button onClick={handleDecline} className="w-full h-12 bg-transparent text-slate-400 hover:text-white font-medium text-sm transition-colors rounded-xl border border-white/5 hover:border-white/20 hover:bg-white/5">
+                    <button onClick={handleDecline} className="w-full h-10 mt-auto bg-transparent text-slate-400 hover:text-white font-medium text-xs transition-colors rounded-lg border border-white/5 hover:border-white/20 hover:bg-white/5">
                         Zostaję przy {basePlanObj.name}
                     </button>
                 </div>
 
                 {/* UPSELL OFFER PLAN (Target) */}
-                <div className="relative group p-[1px] rounded-[2rem] overflow-hidden shadow-[0_20px_50px_-15px_rgba(239,68,68,0.4)] md:scale-[1.03] origin-left">
+                <div className="relative group p-[1px] rounded-[1.5rem] overflow-hidden shadow-[0_10px_30px_-10px_rgba(239,68,68,0.4)] md:scale-[1.02] origin-left">
                     <div
                         className="absolute inset-[-100%] z-0 pointer-events-none"
                         style={{
@@ -163,41 +163,41 @@ export default function UpsellModal({ basePlan, isYearly, onClose, inline = fals
                             animation: 'spin 4s linear infinite'
                         }}
                     />
-                    <div className="bg-[#050505] h-full w-full rounded-[calc(2rem-1px)] p-6 lg:p-8 flex flex-col relative z-10">
+                    <div className="bg-[#050505] h-full w-full rounded-[calc(1.5rem-1px)] p-5 lg:p-6 flex flex-col relative z-10">
                         {/* Highlights */}
-                        <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-red-500/10 blur-[80px] rounded-full pointer-events-none mix-blend-screen" />
-                        <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-gradient-to-r from-red-600 to-red-500 text-white text-[10px] font-bold px-6 py-1.5 rounded-b-xl uppercase tracking-widest w-max shadow-lg shadow-red-500/50">
+                        <div className="absolute top-0 right-0 w-[200px] h-[200px] bg-red-500/10 blur-[60px] rounded-full pointer-events-none mix-blend-screen" />
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-gradient-to-r from-red-600 to-red-500 text-white text-[9px] font-bold px-4 py-1 rounded-b-lg uppercase tracking-widest w-max shadow-md shadow-red-500/30">
                             Zalecany Upgrade (-{discountPercent}%)
                         </div>
 
-                        <h3 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-500 mb-2 mt-4">{targetPlanInfo.name}</h3>
+                        <h3 className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-500 mb-1 mt-4">{targetPlanInfo.name}</h3>
 
-                        <div className="flex flex-col gap-1 mb-1">
+                        <div className="flex flex-col gap-0.5 mb-1">
                             <div className="flex items-center gap-2">
-                                <span className="text-slate-500 line-through decoration-red-500/50 decoration-2 text-lg font-bold">{targetPlanInfo.originalPrice} zł</span>
-                                <span className="bg-red-500/10 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500/20 uppercase tracking-widest">Zniżka Na Zawsze</span>
+                                <span className="text-slate-500 line-through decoration-red-500/50 decoration-2 text-sm font-bold">{targetPlanInfo.originalPrice} zł</span>
+                                <span className="bg-red-500/10 text-red-400 text-[9px] font-bold px-1.5 py-0.5 rounded border border-red-500/20 uppercase tracking-widest">Zniżka Na Zawsze</span>
                             </div>
-                            <div className="text-5xl font-black text-white tracking-tighter">{discountedPrice}<span className="text-2xl text-slate-400 font-bold ml-1">zł</span></div>
+                            <div className="text-4xl font-black text-white tracking-tighter">{discountedPrice}<span className="text-lg text-slate-400 font-bold ml-1">zł</span></div>
                         </div>
 
-                        <div className="text-[10px] text-red-400/80 mb-4 font-bold uppercase tracking-wider">/{isYearly ? 'rok' : 'msc'}</div>
-                        <p className="text-xs text-slate-300 mb-6 pb-4 border-b border-white/10">{targetPlanObj.desc}</p>
+                        <div className="text-[9px] text-red-400/80 mb-3 font-bold uppercase tracking-wider">/{isYearly ? 'rok' : 'msc'}</div>
+                        <p className="text-[11px] text-slate-300 mb-4 pb-3 border-b border-white/10">{targetPlanObj.desc}</p>
 
-                        <div className="text-xs font-bold text-white uppercase tracking-widest mb-4">Wszystko co w {basePlanObj.name}, plus:</div>
-                        <ul className="space-y-3 mb-8 flex-1">
+                        <div className="text-[10px] font-bold text-white uppercase tracking-widest mb-3">Wszystko co w {basePlanObj.name}, plus:</div>
+                        <ul className="space-y-2 mb-5 flex-1">
                             {targetPlanInfo.benefits.map((benefit, i) => (
-                                <li key={i} className="flex items-start gap-3 text-sm text-white">
+                                <li key={i} className="flex items-start gap-2 text-xs text-white">
                                     <div className="mt-0.5 rounded-full bg-red-500/20 p-0.5 border border-red-500/30">
-                                        <CheckCircle2 className="w-3.5 h-3.5 text-red-400 shrink-0" />
+                                        <CheckCircle2 className="w-3 h-3 text-red-400 shrink-0" />
                                     </div>
-                                    <span className="font-medium">{benefit}</span>
+                                    <span className="font-medium leading-snug">{benefit}</span>
                                 </li>
                             ))}
                         </ul>
 
-                        <button onClick={handleAccept} className="w-full h-14 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_0_30px_rgba(239,68,68,0.3)] hover:shadow-[0_0_40px_rgba(239,68,68,0.5)] transform hover:-translate-y-0.5">
-                            <span>Aktywuj {targetPlanInfo.name}</span>
-                            <ArrowRight className="w-5 h-5" />
+                        <button onClick={handleAccept} className="w-full h-12 mt-auto bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-bold rounded-lg flex items-center justify-center gap-2 transition-all shadow-[0_0_20px_rgba(239,68,68,0.2)] hover:shadow-[0_0_30px_rgba(239,68,68,0.4)] transform hover:-translate-y-0.5">
+                            <span className="text-sm">Aktywuj {targetPlanInfo.name}</span>
+                            <ArrowRight className="w-4 h-4" />
                         </button>
                     </div>
                 </div>
@@ -206,7 +206,7 @@ export default function UpsellModal({ basePlan, isYearly, onClose, inline = fals
     );
 
     if (inline) {
-        return content;
+        return <div className="py-2">{content}</div>;
     }
 
     return (

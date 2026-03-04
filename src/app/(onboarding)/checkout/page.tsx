@@ -70,46 +70,43 @@ function CheckoutContent() {
     };
 
     return (
-        <div className="w-full flex-col items-center flex py-8 md:py-16">
+        <div className="w-full h-full flex items-center justify-center overflow-auto px-4 py-4 md:py-8">
             <motion.div
                 initial="hidden"
                 animate="visible"
                 variants={fadeUp}
-                className="w-full max-w-5xl grid lg:grid-cols-[1fr_450px] gap-8 lg:gap-12 items-start"
+                className="w-full max-w-5xl grid lg:grid-cols-[1fr_450px] gap-6 lg:gap-10 items-start my-auto"
             >
                 {/* Left Side: Order Summary */}
-                <div className="flex flex-col space-y-8 lg:pr-8">
+                <div className="flex flex-col space-y-6 lg:pr-4">
                     <div>
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-slate-300 mb-6">
-                            KROK 3 Z 3: FINALIZACJA
-                        </div>
-                        <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight mb-4 text-white">Aktywacja Konta</h1>
-                        <p className="text-slate-400 text-lg leading-relaxed">
-                            Gratulacje, wybrałeś pakiet <span className="text-red-400 font-bold">{plan.name}</span>.<br /> Skonfiguruj bezpieczną płatność, aby natychmiast odblokować dostęp do swojego nowego środowiska pracy.
+                        <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight mb-3 text-white">Sfinalizuj Zamówienie</h1>
+                        <p className="text-slate-400 text-sm md:text-base leading-relaxed">
+                            Gratulacje, wybrałeś pakiet <span className="text-red-400 font-bold">{plan.name}</span>.<br /> Wprowadź informacje bilingowe, aby natychmiast odblokować dostęp.
                         </p>
                     </div>
 
-                    <div className="bg-gradient-to-br from-white/[0.05] to-transparent p-6 sm:p-8 rounded-[2rem] border border-white/10 relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-red-500/10 blur-[80px] rounded-full pointer-events-none transition-opacity duration-700 group-hover:opacity-100 opacity-50" />
+                    <div className="bg-gradient-to-br from-white/[0.05] to-transparent p-5 sm:p-6 rounded-[1.5rem] border border-white/10 relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 w-[200px] h-[200px] bg-red-500/10 blur-[60px] rounded-full pointer-events-none transition-opacity duration-700 group-hover:opacity-100 opacity-50" />
 
                         <div className="relative z-10">
-                            <div className="flex justify-between items-center mb-6">
-                                <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Wybrany Plan</span>
-                                <span className="px-3 py-1 bg-red-500/20 text-red-400 border border-red-500/20 text-[10px] font-bold tracking-widest uppercase rounded flex items-center gap-1.5">
-                                    <Sparkles className="w-3 h-3" /> Vip Access
+                            <div className="flex justify-between items-center mb-4">
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Wybrany Plan</span>
+                                <span className="px-2 py-0.5 bg-red-500/20 text-red-400 border border-red-500/20 text-[9px] font-bold tracking-widest uppercase rounded flex items-center gap-1.5">
+                                    <Sparkles className="w-2.5 h-2.5" /> Premium
                                 </span>
                             </div>
 
-                            <div className="flex items-end gap-2 mb-8">
-                                <div className="text-5xl font-black tracking-tighter text-white">{displayPrice}</div>
-                                <div className="text-xl text-slate-500 font-medium mb-1.5">zł <span className="text-sm font-normal">/{isYearly ? 'rok' : 'msc'}</span></div>
+                            <div className="flex items-end gap-2 mb-6">
+                                <div className="text-4xl font-black tracking-tighter text-white">{displayPrice}</div>
+                                <div className="text-lg text-slate-500 font-medium mb-1">zł <span className="text-xs font-normal">/{isYearly ? 'rok' : 'msc'}</span></div>
                             </div>
 
-                            <ul className="space-y-4 mb-2">
+                            <ul className="space-y-3 mb-1">
                                 {plan.features.map((f, i) => (
-                                    <li key={i} className="flex items-start gap-3 text-sm text-slate-300 transition-colors">
-                                        <div className="mt-0.5 rounded-full bg-white/5 p-1 border border-white/10">
-                                            <Check size={12} className="text-red-400 shrink-0" />
+                                    <li key={i} className="flex items-start gap-2.5 text-xs text-slate-300 transition-colors">
+                                        <div className="mt-0.5 rounded-full bg-white/5 p-0.5 border border-white/10">
+                                            <Check size={10} className="text-red-400 shrink-0" />
                                         </div>
                                         <span className="leading-snug">{f.text}</span>
                                     </li>
@@ -129,40 +126,52 @@ function CheckoutContent() {
                     {/* Glowing Aura Behind the Form */}
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-red-600/5 blur-[120px] rounded-full pointer-events-none mix-blend-screen" />
 
-                    <div className="bg-[#0a0a0c] border border-white/10 backdrop-blur-2xl shadow-2xl relative min-h-[500px] flex flex-col rounded-[2rem] overflow-hidden p-6 sm:p-8">
+                    <div className="bg-[#0a0a0c] border border-white/10 backdrop-blur-2xl shadow-2xl relative min-h-[450px] flex flex-col rounded-[1.5rem] overflow-hidden p-5 sm:p-6">
                         {error ? (
-                            <div className="text-center p-6 space-y-4 relative z-10 m-auto">
-                                <div className="w-16 h-16 rounded-3xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto text-red-500 shadow-[0_0_30px_rgba(239,68,68,0.2)]">
-                                    <Lock size={24} />
+                            <div className="text-center p-4 space-y-3 relative z-10 m-auto">
+                                <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto text-red-500 shadow-[0_0_20px_rgba(239,68,68,0.2)]">
+                                    <Lock size={20} />
                                 </div>
-                                <h3 className="font-bold text-xl text-white">Błąd Inicjalizacji</h3>
-                                <p className="text-sm text-red-400/80 leading-relaxed">{error}</p>
-                                <Button onClick={() => window.location.reload()} className="w-full mt-4 h-12 rounded-xl font-bold bg-white/5 hover:bg-white/10 text-white border border-white/10">Spróbuj Ponownie</Button>
+                                <h3 className="font-bold text-lg text-white">Błąd Inicjalizacji</h3>
+                                <p className="text-xs text-red-400/80 leading-relaxed">{error}</p>
+                                <Button onClick={() => window.location.reload()} className="w-full mt-2 h-10 rounded-lg font-bold bg-white/5 hover:bg-white/10 text-white border border-white/10 text-xs">Spróbuj Ponownie</Button>
                             </div>
                         ) : (isInitLoading || !clientSecret || !publishableKey) ? (
-                            <div className="flex flex-col items-center justify-center gap-6 relative z-10 h-full m-auto">
-                                <div className="relative">
-                                    <div className="absolute inset-0 bg-red-500/20 blur-xl rounded-full animate-pulse" />
-                                    <Loader2 className="animate-spin text-red-500 relative z-10" size={32} />
+                            <div className="flex flex-col items-center justify-center gap-4 relative z-10 h-full m-auto w-full">
+                                {/* Skeleton Loader matching the form structure roughly */}
+                                <div className="w-full space-y-4 animate-pulse opacity-40">
+                                    <div className="h-4 bg-white/20 rounded w-1/3 mb-6"></div>
+                                    <div className="space-y-2">
+                                        <div className="h-[40px] bg-white/10 rounded-lg w-full"></div>
+                                        <div className="h-[40px] bg-white/10 rounded-lg w-full"></div>
+                                        <div className="h-[200px] bg-white/10 rounded-lg w-full mt-4"></div>
+                                    </div>
+                                    <div className="h-12 bg-red-500/30 rounded-lg w-full mt-6"></div>
                                 </div>
-                                <p className="text-slate-500 text-[10px] tracking-[0.2em] uppercase font-bold text-center">Nawiązywanie bezpiecznego<br />połączenia ze Stripe</p>
+                                <div className="absolute inset-0 flex flex-col items-center justify-center backdrop-blur-sm bg-[#0a0a0c]/50 rounded-xl">
+                                    <div className="relative mb-3">
+                                        <div className="absolute inset-0 bg-red-500/20 blur-xl rounded-full animate-pulse" />
+                                        <Loader2 className="animate-spin text-red-500 relative z-10" size={28} />
+                                    </div>
+                                    <p className="text-slate-400 text-[9px] tracking-[0.15em] uppercase font-bold text-center">Inicjalizacja środowiska<br />Stripe</p>
+                                </div>
                             </div>
                         ) : (
-                            <div className="relative z-10 flex flex-col h-full">
-                                <div className="mb-8">
-                                    <h3 className="text-xl font-bold text-white mb-2">Dane płatności</h3>
-                                    <p className="text-slate-400 text-sm leading-relaxed">System zaktualizuje parametry Twojego konta bezpośrednio po autoryzacji karty.</p>
+                            <div className="relative z-10 flex flex-col h-full opacity-0 animate-[fade-in_0.5s_ease-out_forwards]">
+                                <div className="mb-5">
+                                    <h3 className="text-lg font-bold text-white mb-1">Dane rozliczeniowe</h3>
+                                    <p className="text-slate-400 text-xs leading-relaxed">Wypełnij formularz certyfikowany przez operatora Stripe. Rachunek zostanie wygenerowany na podane dane.</p>
                                 </div>
-                                <div className="p-1 flex-1">
+                                <div className="flex-1">
                                     <StripeContainer clientSecret={clientSecret} publishableKey={publishableKey}>
                                         <CheckoutForm planId={planKey} />
                                     </StripeContainer>
                                 </div>
 
                                 {/* Bottom minimal trust badge inside Stripe block */}
-                                <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-center gap-2 opacity-50">
+                                <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-center gap-2 opacity-50">
                                     <Lock className="w-3 h-3 text-slate-500" />
-                                    <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">256-BIT ENCRYPTION</span>
+                                    <span className="text-[9px] uppercase tracking-widest text-slate-500 font-bold">Zabezpieczone 256-BIT SSL</span>
                                 </div>
                             </div>
                         )}

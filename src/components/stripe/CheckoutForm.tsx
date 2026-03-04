@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { useStripe, useElements, PaymentElement } from '@stripe/react-stripe-js';
+import { useStripe, useElements, PaymentElement, AddressElement } from '@stripe/react-stripe-js';
 import { ShieldCheck, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
@@ -39,8 +39,18 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ planId }) => {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="bg-black/20 p-6 rounded-2xl border border-white/5 backdrop-blur-sm">
+        <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="bg-black/20 p-4 rounded-xl border border-white/5 backdrop-blur-sm">
+                <AddressElement
+                    options={{
+                        mode: 'billing',
+                        fields: { phone: 'always' },
+                        display: { name: 'full' }
+                    }}
+                />
+            </div>
+
+            <div className="bg-black/20 p-4 rounded-xl border border-white/5 backdrop-blur-sm">
                 <PaymentElement
                     options={{
                         layout: 'tabs',
