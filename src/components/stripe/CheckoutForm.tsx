@@ -173,6 +173,13 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ planId }) => {
                         onReady={() => setIsStripeReady(true)}
                         options={{
                             layout: 'tabs',
+                            fields: {
+                                billingDetails: {
+                                    address: {
+                                        country: 'never'
+                                    }
+                                }
+                            }
                         }}
                     />
                 </div>
