@@ -21,6 +21,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ planId }) => {
     const [message, setMessage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isStripeReady, setIsStripeReady] = useState(false);
+    const [showCompanyFields, setShowCompanyFields] = useState(false);
 
     // Native form state
     const [formData, setFormData] = useState({
@@ -124,21 +125,26 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ planId }) => {
                     </div>
                 </div>
 
-                <div>
-                    <label className={labelClasses}>Adres Email *</label>
-                    <input type="email" name="email" value={formData.email} onChange={handleInputChange} className={inputClasses} placeholder="jan@example.com" required />
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                    <div>
-                        <label className={labelClasses}>Nazwa Firmy (Opcjonalnie)</label>
-                        <input type="text" name="company" value={formData.company} onChange={handleInputChange} className={inputClasses} placeholder="Firma Sp. z o.o." />
+                {!showCompanyFields ? (
+                    <button
+                        type="button"
+                        onClick={() => setShowCompanyFields(true)}
+                        className="text-[11px] text-slate-400 hover:text-white underline decoration-dashed underline-offset-4 transition-colors pt-1"
+                    >
+                        Chcę podać dane firmy (faktura na firmę)
+                    </button>
+                ) : (
+                    <div className="grid grid-cols-2 gap-3 animate-[fade-in_0.3s_ease-out]">
+                        <div>
+                            <label className={labelClasses}>Nazwa Firmy</label>
+                            <input type="text" name="company" value={formData.company} onChange={handleInputChange} className={inputClasses} placeholder="Firma Sp. z o.o." />
+                        </div>
+                        <div>
+                            <label className={labelClasses}>NIP</label>
+                            <input type="text" name="nip" value={formData.nip} onChange={handleInputChange} className={inputClasses} placeholder="0000000000" />
+                        </div>
                     </div>
-                    <div>
-                        <label className={labelClasses}>NIP (Opcjonalnie)</label>
-                        <input type="text" name="nip" value={formData.nip} onChange={handleInputChange} className={inputClasses} placeholder="0000000000" />
-                    </div>
-                </div>
+                )}
 
                 <div>
                     <label className={labelClasses}>Adres (Ulica i numer) *</label>
