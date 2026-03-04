@@ -31,6 +31,7 @@ const StripeContainer: React.FC<StripeContainerProps> = ({ clientSecret, publish
     const activeStripePromise = getStripe(publishableKey);
 
     const options: any = {
+        locale: 'pl',
         appearance: {
             theme: 'night' as const,
             variables: {

@@ -103,8 +103,8 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ planId }) => {
         }
     };
 
-    const inputClasses = "w-full bg-[#0a0a0c] border border-white/10 rounded-md px-3 py-1.5 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500/50 transition-all";
-    const labelClasses = "block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1 ml-1";
+    const inputClasses = "w-full bg-[#171717] border border-[#334155] rounded-[12px] px-4 py-[14px] text-[15px] text-white placeholder:text-slate-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all shadow-sm";
+    const labelClasses = "block text-[11px] font-[600] text-[#94a3b8] uppercase tracking-[0.05em] mb-2";
 
     return (
         <form onSubmit={handleSubmit} className="space-y-2.5">
