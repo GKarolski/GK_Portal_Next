@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { useStripe, useElements, PaymentElement, AddressElement } from '@stripe/react-stripe-js';
+import { useStripe, useElements, PaymentElement } from '@stripe/react-stripe-js';
 import { ShieldCheck, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
@@ -14,11 +14,35 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ planId }) => {
     const elements = useElements();
     const [message, setMessage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [isStripeReady, setIsStripeReady] = useState(false);
+
+    // Native form state
+    const [formData, setFormData] = useState({
+        firstName: '',
+        lastName: '',
+        email: '',
+        company: '',
+        nip: '',
+        address: '',
+        city: '',
+        zip: ''
+    });
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!stripe || !elements) return;
+
+        // Basic validation for native fields
+        if (!formData.firstName || !formData.lastName || !formData.email || !formData.address || !formData.city || !formData.zip) {
+            setMessage("Wypełnij wszystkie wymagane pola adresowe.");
+            return;
+        }
 
         setIsLoading(true);
         setMessage(null);
@@ -29,6 +53,18 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ planId }) => {
             elements,
             confirmParams: {
                 return_url: returnUrl,
+                payment_method_data: {
+                    billing_details: {
+                        name: `${formData.firstName} ${formData.lastName}`,
+                        email: formData.email,
+                        address: {
+                            line1: formData.address,
+                            city: formData.city,
+                            postal_code: formData.zip,
+                            country: 'PL', // Grabbing default as PL for now, can be expanded
+                        }
+                    }
+                }
             },
         });
 
@@ -38,24 +74,80 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ planId }) => {
         }
     };
 
+    const inputClasses = "w-full bg-[#0a0a0c] border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500/50 transition-all";
+    const labelClasses = "block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-1";
+
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="bg-black/20 p-4 rounded-xl border border-white/5 backdrop-blur-sm">
-                <AddressElement
-                    options={{
-                        mode: 'billing',
-                        fields: { phone: 'always' },
-                        display: { name: 'full' }
-                    }}
-                />
+        <form onSubmit={handleSubmit} className="space-y-6">
+
+            <div className="space-y-4">
+                <div className="flex items-center justify-between border-b border-white/5 pb-2 mb-4">
+                    <h4 className="text-white font-semibold text-sm">Adres Rozliczeniowy</h4>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label className={labelClasses}>Imię *</label>
+                        <input type="text" name="firstName" value={formData.firstName} onChange={handleInputChange} className={inputClasses} placeholder="Jan" required />
+                    </div>
+                    <div>
+                        <label className={labelClasses}>Nazwisko *</label>
+                        <input type="text" name="lastName" value={formData.lastName} onChange={handleInputChange} className={inputClasses} placeholder="Kowalski" required />
+                    </div>
+                </div>
+
+                <div>
+                    <label className={labelClasses}>Adres Email *</label>
+                    <input type="email" name="email" value={formData.email} onChange={handleInputChange} className={inputClasses} placeholder="jan@example.com" required />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label className={labelClasses}>Nazwa Firmy (Opcjonalnie)</label>
+                        <input type="text" name="company" value={formData.company} onChange={handleInputChange} className={inputClasses} placeholder="Firma Sp. z o.o." />
+                    </div>
+                    <div>
+                        <label className={labelClasses}>NIP (Opcjonalnie)</label>
+                        <input type="text" name="nip" value={formData.nip} onChange={handleInputChange} className={inputClasses} placeholder="0000000000" />
+                    </div>
+                </div>
+
+                <div>
+                    <label className={labelClasses}>Adres (Ulica i numer) *</label>
+                    <input type="text" name="address" value={formData.address} onChange={handleInputChange} className={inputClasses} placeholder="ul. Przykładowa 1/2" required />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label className={labelClasses}>Miejscowość *</label>
+                        <input type="text" name="city" value={formData.city} onChange={handleInputChange} className={inputClasses} placeholder="Warszawa" required />
+                    </div>
+                    <div>
+                        <label className={labelClasses}>Kod Pocztowy *</label>
+                        <input type="text" name="zip" value={formData.zip} onChange={handleInputChange} className={inputClasses} placeholder="00-001" required />
+                    </div>
+                </div>
             </div>
 
-            <div className="bg-black/20 p-4 rounded-xl border border-white/5 backdrop-blur-sm">
-                <PaymentElement
-                    options={{
-                        layout: 'tabs',
-                    }}
-                />
+            <div className="space-y-4 pt-4 border-t border-white/5">
+                <div className="flex items-center justify-between pb-2">
+                    <h4 className="text-white font-semibold text-sm">Szczegóły Płatności</h4>
+                </div>
+
+                <div className="bg-black/20 p-4 rounded-xl border border-white/5 backdrop-blur-sm relative z-0 min-h-[300px]">
+                    {!isStripeReady && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0a0a0c]/80 z-10 rounded-xl backdrop-blur-md">
+                            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-red-500 mb-3" />
+                            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest animate-pulse">Ładowanie Terminala...</span>
+                        </div>
+                    )}
+                    <PaymentElement
+                        onReady={() => setIsStripeReady(true)}
+                        options={{
+                            layout: 'tabs',
+                        }}
+                    />
+                </div>
             </div>
 
             {message && (
@@ -69,15 +161,10 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ planId }) => {
                 type="submit"
                 disabled={isLoading || !stripe || !elements}
                 isLoading={isLoading}
-                className="w-full h-14 text-base shadow-[0_0_20px_rgba(239,68,68,0.3)] hover:shadow-[0_0_30px_rgba(239,68,68,0.5)] bg-accent-red hover:bg-red-500 text-white border-none rounded-xl font-bold tracking-wide transition-all"
+                className="w-full h-14 mt-4 text-base shadow-[0_0_20px_rgba(239,68,68,0.3)] hover:shadow-[0_0_30px_rgba(239,68,68,0.5)] bg-accent-red hover:bg-red-500 text-white border-none rounded-xl font-bold tracking-wide transition-all"
             >
                 {isLoading ? 'Przetwarzanie...' : 'Zapłać i Aktywuj'}
             </Button>
-
-            <div className="flex items-center justify-center gap-2 text-[10px] text-slate-500 uppercase tracking-widest mt-6 opacity-60">
-                <Lock size={10} />
-                <span>256-bit SSL Secure Payment</span>
-            </div>
         </form>
     );
 };
