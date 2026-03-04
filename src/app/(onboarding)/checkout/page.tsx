@@ -35,15 +35,15 @@ function CheckoutContent() {
     }
 
     return (
-        <div className="w-full h-full flex items-center justify-center overflow-auto px-4 py-4 md:py-8">
+        <div className="w-full min-h-screen flex items-start justify-center overflow-auto px-4 py-8 md:py-12 bg-[#050505]">
             <motion.div
                 initial="hidden"
                 animate="visible"
                 variants={fadeUp}
-                className="w-full max-w-5xl grid lg:grid-cols-[1fr_400px] gap-6 lg:gap-10 items-start my-auto"
+                className="w-full max-w-5xl grid lg:grid-cols-[1fr_450px] gap-8 lg:gap-12 items-start"
             >
-                {/* Order Summary (Right on Desktop) */}
-                <div className="flex flex-col space-y-6 lg:pl-4 order-1 lg:order-2">
+                {/* Order Summary (Left on Desktop) */}
+                <div className="flex flex-col space-y-6 lg:pr-4">
                     <div>
                         <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight mb-3 text-white">Sfinalizuj Zamówienie</h1>
                         <p className="text-slate-400 text-sm md:text-base leading-relaxed">
@@ -86,16 +86,16 @@ function CheckoutContent() {
                     </div>
                 </div>
 
-                {/* Stripe Checkout UI (Left on Desktop) */}
-                <div className="relative w-full order-2 lg:order-1">
+                {/* Stripe Checkout UI (Right on Desktop) */}
+                <div className="relative w-full">
                     {/* Glowing Aura Behind the Form */}
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-red-600/5 blur-[120px] rounded-full pointer-events-none mix-blend-screen" />
 
-                    <div className="bg-[#0a0a0c] border border-white/10 backdrop-blur-2xl shadow-2xl relative min-h-[450px] flex flex-col rounded-[1.5rem] overflow-hidden p-5 sm:p-6">
+                    <div className="bg-[#0a0a0c] border border-white/10 backdrop-blur-2xl shadow-2xl relative flex flex-col rounded-[1.5rem] overflow-hidden p-5 sm:p-5">
                         <div className="relative z-10 flex flex-col h-full opacity-0 animate-[fade-in_0.5s_ease-out_forwards]">
-                            <div className="mb-5">
+                            <div className="mb-4">
                                 <h3 className="text-lg font-bold text-white mb-1">Dane rozliczeniowe</h3>
-                                <p className="text-slate-400 text-xs leading-relaxed">Wypełnij formularz certyfikowany przez operatora Stripe. Rachunek zostanie wygenerowany na podane dane.</p>
+                                <p className="text-slate-400 text-xs leading-relaxed">Formularz certyfikowany przez operatora Stripe. Rachunek zostanie wygenerowany na podane dane.</p>
                             </div>
                             <div className="flex-1">
                                 <StripeContainer
@@ -109,7 +109,7 @@ function CheckoutContent() {
                             </div>
 
                             {/* Bottom minimal trust badge inside Stripe block */}
-                            <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-center gap-2 opacity-50">
+                            <div className="mt-5 pt-3 border-t border-white/5 flex items-center justify-center gap-2 opacity-50">
                                 <Lock className="w-3 h-3 text-slate-500" />
                                 <span className="text-[9px] uppercase tracking-widest text-slate-500 font-bold">Zabezpieczone 256-BIT SSL</span>
                             </div>

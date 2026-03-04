@@ -102,18 +102,18 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ planId }) => {
         }
     };
 
-    const inputClasses = "w-full bg-[#0a0a0c] border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500/50 transition-all";
-    const labelClasses = "block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-1";
+    const inputClasses = "w-full bg-[#0a0a0c] border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500/50 transition-all";
+    const labelClasses = "block text-[9.5px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-1";
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
 
-            <div className="space-y-4">
-                <div className="flex items-center justify-between border-b border-white/5 pb-2 mb-4">
+            <div className="space-y-3">
+                <div className="flex items-center justify-between border-b border-white/5 pb-2 mb-3">
                     <h4 className="text-white font-semibold text-sm">Adres Rozliczeniowy</h4>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3">
                     <div>
                         <label className={labelClasses}>Imię *</label>
                         <input type="text" name="firstName" value={formData.firstName} onChange={handleInputChange} className={inputClasses} placeholder="Jan" required />
@@ -129,7 +129,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ planId }) => {
                     <input type="email" name="email" value={formData.email} onChange={handleInputChange} className={inputClasses} placeholder="jan@example.com" required />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3">
                     <div>
                         <label className={labelClasses}>Nazwa Firmy (Opcjonalnie)</label>
                         <input type="text" name="company" value={formData.company} onChange={handleInputChange} className={inputClasses} placeholder="Firma Sp. z o.o." />
@@ -145,7 +145,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ planId }) => {
                     <input type="text" name="address" value={formData.address} onChange={handleInputChange} className={inputClasses} placeholder="ul. Przykładowa 1/2" required />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3">
                     <div>
                         <label className={labelClasses}>Miejscowość *</label>
                         <input type="text" name="city" value={formData.city} onChange={handleInputChange} className={inputClasses} placeholder="Warszawa" required />
@@ -157,16 +157,16 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ planId }) => {
                 </div>
             </div>
 
-            <div className="space-y-4 pt-4 border-t border-white/5">
-                <div className="flex items-center justify-between pb-2">
+            <div className="space-y-3 pt-3 border-t border-white/5">
+                <div className="flex items-center justify-between pb-1">
                     <h4 className="text-white font-semibold text-sm">Szczegóły Płatności</h4>
                 </div>
 
-                <div className="bg-black/20 p-4 rounded-xl border border-white/5 backdrop-blur-sm relative z-0 min-h-[300px]">
+                <div className="bg-black/20 p-3 rounded-xl border border-white/5 backdrop-blur-sm relative z-0 min-h-[260px]">
                     {!isStripeReady && (
                         <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0a0a0c]/80 z-10 rounded-xl backdrop-blur-md">
-                            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-red-500 mb-3" />
-                            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest animate-pulse">Ładowanie Terminala...</span>
+                            <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-red-500 mb-2" />
+                            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-widest animate-pulse">Ładowanie Terminala...</span>
                         </div>
                     )}
                     <PaymentElement
@@ -179,7 +179,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ planId }) => {
             </div>
 
             {message && (
-                <div className="p-4 bg-red-500/10 text-red-500 text-sm font-medium rounded-xl border border-red-500/20 flex items-center gap-2">
+                <div className="p-3 bg-red-500/10 text-red-500 text-sm font-medium rounded-xl border border-red-500/20 flex items-center gap-2">
                     <ShieldCheck size={16} />
                     {message}
                 </div>
@@ -189,7 +189,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ planId }) => {
                 type="submit"
                 disabled={isLoading || !stripe || !elements}
                 isLoading={isLoading}
-                className="w-full h-14 mt-4 text-base shadow-[0_0_20px_rgba(239,68,68,0.3)] hover:shadow-[0_0_30px_rgba(239,68,68,0.5)] bg-accent-red hover:bg-red-500 text-white border-none rounded-xl font-bold tracking-wide transition-all"
+                className="w-full h-12 mt-2 text-[15px] shadow-[0_0_20px_rgba(239,68,68,0.3)] hover:shadow-[0_0_30px_rgba(239,68,68,0.5)] bg-accent-red hover:bg-red-500 text-white border-none rounded-xl font-bold tracking-wide transition-all"
             >
                 {isLoading ? 'Przetwarzanie...' : 'Zapłać i Aktywuj'}
             </Button>
