@@ -125,15 +125,17 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ planId }) => {
                     </div>
                 </div>
 
-                {!showCompanyFields ? (
+                <div className="flex items-center justify-between pb-1 mt-1">
                     <button
                         type="button"
-                        onClick={() => setShowCompanyFields(true)}
-                        className="text-[11px] text-slate-400 hover:text-white underline decoration-dashed underline-offset-4 transition-colors pt-1"
+                        onClick={() => setShowCompanyFields(!showCompanyFields)}
+                        className="text-[11px] text-slate-400 hover:text-white underline decoration-dashed underline-offset-4 transition-colors"
                     >
-                        Chcę podać dane firmy (faktura na firmę)
+                        {showCompanyFields ? 'Odznacz fakturę na firmę (ukryj)' : 'Chcę podać dane firmy (faktura na firmę)'}
                     </button>
-                ) : (
+                </div>
+
+                {showCompanyFields && (
                     <div className="grid grid-cols-2 gap-3 animate-[fade-in_0.3s_ease-out]">
                         <div>
                             <label className={labelClasses}>Nazwa Firmy</label>
