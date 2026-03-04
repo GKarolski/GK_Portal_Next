@@ -152,7 +152,6 @@ const faqs = [
 
 /* ──────────────── main component ──────────────── */
 export default function LandingPage() {
-  const [isYearly, setIsYearly] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   return (
@@ -600,14 +599,7 @@ export default function LandingPage() {
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">Wymień chaos na święty spokój</h2>
             <p className="text-slate-400 text-lg max-w-2xl mx-auto mb-10 font-light">Wystarczy godzina oszczędności w miesiącu, by system się zwrócił.</p>
 
-            {/* Toggle */}
-            <div className="flex items-center justify-center gap-4">
-              <span className={"font-semibold transition-colors" + (isYearly ? " text-slate-500" : " text-white")}>Miesięcznie</span>
-              <button className={"w-14 h-7 rounded-full relative transition-all duration-300 cursor-pointer" + (isYearly ? " bg-emerald-500" : " bg-[#3f3f46] border border-[#52525b]")} onClick={() => setIsYearly(!isYearly)}>
-                <div className={"absolute top-[3px] left-[3px] w-[20px] h-[20px] bg-white rounded-full transition-all duration-300 shadow-md" + (isYearly ? " translate-x-[28px]" : "")}></div>
-              </button>
-              <span className={"font-semibold flex items-center gap-2 transition-colors" + (isYearly ? " text-white" : " text-slate-500")}>Rocznie <span className="text-[10px] bg-emerald-500/10 text-emerald-500 px-2 py-0.5 rounded-full border border-emerald-500/20">2 M-CE GRATIS</span></span>
-            </div>
+
           </motion.div>
 
           <div className="w-full">
