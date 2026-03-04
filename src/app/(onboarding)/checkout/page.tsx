@@ -75,10 +75,10 @@ function CheckoutContent() {
                 initial="hidden"
                 animate="visible"
                 variants={fadeUp}
-                className="w-full max-w-5xl grid lg:grid-cols-[1fr_450px] gap-6 lg:gap-10 items-start my-auto"
+                className="w-full max-w-5xl grid lg:grid-cols-[1fr_400px] gap-6 lg:gap-10 items-start my-auto"
             >
-                {/* Left Side: Order Summary */}
-                <div className="flex flex-col space-y-6 lg:pr-4">
+                {/* Order Summary (Right on Desktop) */}
+                <div className="flex flex-col space-y-6 lg:pl-4 order-1 lg:order-2">
                     <div>
                         <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight mb-3 text-white">Sfinalizuj Zamówienie</h1>
                         <p className="text-slate-400 text-sm md:text-base leading-relaxed">
@@ -121,8 +121,8 @@ function CheckoutContent() {
                     </div>
                 </div>
 
-                {/* Right Side: Stripe Checkout UI */}
-                <div className="relative w-full">
+                {/* Stripe Checkout UI (Left on Desktop) */}
+                <div className="relative w-full order-2 lg:order-1">
                     {/* Glowing Aura Behind the Form */}
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-red-600/5 blur-[120px] rounded-full pointer-events-none mix-blend-screen" />
 

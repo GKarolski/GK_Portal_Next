@@ -64,16 +64,44 @@ export async function POST(req: Request) {
             });
         }
 
-        // 3. Create Subscription
-        console.log('[STRIPE DEBUG] Creating subscription...');
-        const subscription = await stripe.subscriptions.create({
+        // 3. Find existing incomplete subscription
+        console.log('[STRIPE DEBUG] Checking for existing incomplete subscriptions...');
+        const existingSubscriptions = await stripe.subscriptions.list({
             customer: customer.id,
-            items: [{ price: priceId }],
-            payment_behavior: 'default_incomplete',
-            payment_settings: { save_default_payment_method: 'on_subscription' },
-            expand: ['latest_invoice.payment_intent'],
-            metadata: { userId, planId, companyName: companyName || '' }
+            status: 'incomplete',
+            expand: ['data.latest_invoice.payment_intent']
         });
+
+        let subscription;
+
+        // Look for an exact match on Price ID
+        const matchingSub = existingSubscriptions.data.find(sub =>
+            sub.items.data.some(item => item.price.id === priceId)
+        );
+
+        if (matchingSub && matchingSub.latest_invoice) {
+            console.log('[STRIPE DEBUG] Found existing incomplete subscription:', matchingSub.id);
+            // Check if the invoice is still open and payment intent is active
+            const invoice = matchingSub.latest_invoice as any;
+            if (invoice.status === 'open' && invoice.payment_intent && invoice.payment_intent.status !== 'canceled') {
+                subscription = matchingSub;
+            } else {
+                console.log('[STRIPE DEBUG] Existing subscription invoice/payment_intent is invalid or canceled. Canceling old sub and creating new one.');
+                await stripe.subscriptions.cancel(matchingSub.id);
+            }
+        }
+
+        if (!subscription) {
+            console.log('[STRIPE DEBUG] Creating new subscription...');
+            subscription = await stripe.subscriptions.create({
+                customer: customer.id,
+                items: [{ price: priceId }],
+                payment_behavior: 'default_incomplete',
+                payment_settings: { save_default_payment_method: 'on_subscription' },
+                expand: ['latest_invoice.payment_intent'],
+                metadata: { userId, planId, companyName: companyName || '' }
+            });
+        }
 
         console.log('[STRIPE DEBUG] Subscription status:', subscription.status);
 
