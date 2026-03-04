@@ -37,9 +37,9 @@ export default function PlanSelector({ mode }: PlanSelectorProps) {
             // Mode "select" - trigger upsell modal if applicable
             setSelectedPlan(planId);
 
-            // If Expert is selected, no upsell, go straight to checkout
-            if (planId === "EXPERT") {
-                window.location.href = `/api/checkout?plan=EXPERT&interval=${isYearly ? 'year' : 'month'}`;
+            // If Expert is selected OR if they chose an annual plan, skip upsell, go straight to checkout
+            if (planId === "EXPERT" || isYearly) {
+                window.location.href = `/api/checkout?plan=${planId}&interval=${isYearly ? 'year' : 'month'}`;
             }
         }
     };
@@ -139,7 +139,7 @@ export default function PlanSelector({ mode }: PlanSelectorProps) {
 
             {/* Upsell Modal */}
             <AnimatePresence>
-                {selectedPlan && (selectedPlan === "STARTER" || selectedPlan === "PROFESSIONAL") && mode === "select" && (
+                {selectedPlan && (selectedPlan === "STARTER" || selectedPlan === "PROFESSIONAL") && mode === "select" && !isYearly && (
                     <UpsellModal
                         basePlan={selectedPlan}
                         isYearly={isYearly}
