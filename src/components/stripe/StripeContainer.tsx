@@ -5,19 +5,21 @@ import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 
 interface StripeContainerProps {
-    clientSecret: string;
+    clientSecret?: string;
     publishableKey: string;
+    mode?: 'payment' | 'setup' | 'subscription';
+    amount?: number;
+    currency?: string;
     children: ReactNode;
 }
 
-const StripeContainer: React.FC<StripeContainerProps> = ({ clientSecret, publishableKey, children }) => {
+const StripeContainer: React.FC<StripeContainerProps> = ({ clientSecret, publishableKey, mode, amount, currency, children }) => {
     const stripePromise = useMemo(() => {
         if (!publishableKey) return null;
         return loadStripe(publishableKey);
     }, [publishableKey]);
 
-    const options = {
-        clientSecret,
+    const options: any = {
         appearance: {
             theme: 'night' as const,
             variables: {
@@ -49,6 +51,14 @@ const StripeContainer: React.FC<StripeContainerProps> = ({ clientSecret, publish
             }
         },
     };
+
+    if (clientSecret) {
+        options.clientSecret = clientSecret;
+    } else if (mode) {
+        options.mode = mode;
+        if (amount) options.amount = amount * 100; // Stripe expects cents
+        if (currency) options.currency = currency;
+    }
 
     if (!stripePromise) return null;
 

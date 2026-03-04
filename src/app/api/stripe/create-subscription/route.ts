@@ -9,8 +9,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export async function POST(req: Request) {
     try {
-        const { planId, email, userId, companyName, interval = 'month', upsell = 'false' } = await req.json();
-        console.log('[STRIPE DEBUG] Received:', { planId, email, userId, companyName, interval, upsell });
+        const { planId, email, userId, companyName, interval = 'month', upsell = 'false', formData } = await req.json();
+        console.log('[STRIPE DEBUG] Received:', { planId, email, userId, companyName, interval, upsell, hasFormData: !!formData });
 
         if (!userId || !email) {
             return NextResponse.json({ error: 'Brak danych użytkownika w żądaniu.' }, { status: 400 });
@@ -62,6 +62,53 @@ export async function POST(req: Request) {
                 email,
                 metadata: { userId }
             });
+        }
+
+        // 2b. Update Customer with Billing Details (name, address, tax_id) from form
+        if (formData) {
+            console.log('[STRIPE DEBUG] Updating Customer with billing details from formData...');
+            const fullName = `${formData.firstName} ${formData.lastName}`.trim();
+            const displayName = formData.company ? `${formData.company} (${fullName})` : fullName;
+
+            const addressParams = {
+                line1: formData.address,
+                city: formData.city,
+                postal_code: formData.zip,
+                country: 'PL' // Hardcoded to PL based on UI
+            };
+
+            await stripe.customers.update(customer.id, {
+                name: displayName,
+                address: addressParams,
+                shipping: {
+                    name: fullName,
+                    address: addressParams
+                }
+            });
+
+            if (formData.nip) {
+                // Wipe any existing eu_vat tax IDs to avoid duplicates for the same customer
+                try {
+                    const existingTaxIds = await stripe.customers.listTaxIds(customer.id);
+                    for (const t of existingTaxIds.data) {
+                        if (t.type === 'eu_vat') {
+                            await stripe.customers.deleteTaxId(customer.id, t.id);
+                        }
+                    }
+
+                    // Add the new NIP. Format must be Country Code + Number (e.g. PL1234567890)
+                    const cleanNip = formData.nip.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+                    const nipValue = cleanNip.startsWith('PL') ? cleanNip : `PL${cleanNip}`;
+
+                    await stripe.customers.createTaxId(customer.id, {
+                        type: 'eu_vat',
+                        value: nipValue,
+                    });
+                    console.log('[STRIPE DEBUG] Successfully added Tax ID (NIP):', nipValue);
+                } catch (taxErr: any) {
+                    console.error('[STRIPE WARNING] Could not set Tax ID from NIP. Ignoring:', taxErr.message);
+                }
+            }
         }
 
         // 3. Find existing incomplete subscription

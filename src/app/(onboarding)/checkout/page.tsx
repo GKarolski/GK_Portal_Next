@@ -20,46 +20,7 @@ function CheckoutContent() {
     const planKey = (searchParams.get('plan') || 'STARTER').toUpperCase() as keyof typeof pricingPlans;
     const plan = pricingPlans[planKey] || pricingPlans.STARTER;
 
-    const [clientSecret, setClientSecret] = useState<string | null>(null);
-    const [publishableKey, setPublishableKey] = useState<string | null>(null);
-    const [error, setError] = useState<string | null>(null);
-    const [isInitLoading, setIsInitLoading] = useState(true);
-
-    useEffect(() => {
-        if (!user) return;
-
-        const initCheckout = async () => {
-            try {
-                const response = await fetch('/api/stripe/create-subscription', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        planId: planKey,
-                        email: user.email,
-                        userId: user.id,
-                        companyName: user.companyName,
-                        interval: searchParams.get('interval') || 'month',
-                        upsell: searchParams.get('upsell') || 'false'
-                    }),
-                });
-
-                const data = await response.json();
-                if (data.clientSecret) {
-                    setClientSecret(data.clientSecret);
-                    setPublishableKey(data.publishableKey);
-                } else {
-                    setError(data.error || 'Błąd inicjalizacji płatności.');
-                }
-            } catch (err) {
-                console.error('Checkout init error:', err);
-                setError('Wystąpił błąd podczas łączenia z bramką płatniczą.');
-            } finally {
-                setIsInitLoading(false);
-            }
-        };
-
-        initCheckout();
-    }, [user, planKey]);
+    const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '';
 
     const isYearly = searchParams.get('interval') === 'year';
     const displayPrice = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
@@ -68,6 +29,10 @@ function CheckoutContent() {
         hidden: { opacity: 0, y: 20 },
         visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
     };
+
+    if (!user) {
+        return <div className="w-full h-full flex justify-center items-center"><Loader2 className="animate-spin text-red-500" /></div>;
+    }
 
     return (
         <div className="w-full h-full flex items-center justify-center overflow-auto px-4 py-4 md:py-8">
@@ -127,54 +92,28 @@ function CheckoutContent() {
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-red-600/5 blur-[120px] rounded-full pointer-events-none mix-blend-screen" />
 
                     <div className="bg-[#0a0a0c] border border-white/10 backdrop-blur-2xl shadow-2xl relative min-h-[450px] flex flex-col rounded-[1.5rem] overflow-hidden p-5 sm:p-6">
-                        {error ? (
-                            <div className="text-center p-4 space-y-3 relative z-10 m-auto">
-                                <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto text-red-500 shadow-[0_0_20px_rgba(239,68,68,0.2)]">
-                                    <Lock size={20} />
-                                </div>
-                                <h3 className="font-bold text-lg text-white">Błąd Inicjalizacji</h3>
-                                <p className="text-xs text-red-400/80 leading-relaxed">{error}</p>
-                                <Button onClick={() => window.location.reload()} className="w-full mt-2 h-10 rounded-lg font-bold bg-white/5 hover:bg-white/10 text-white border border-white/10 text-xs">Spróbuj Ponownie</Button>
+                        <div className="relative z-10 flex flex-col h-full opacity-0 animate-[fade-in_0.5s_ease-out_forwards]">
+                            <div className="mb-5">
+                                <h3 className="text-lg font-bold text-white mb-1">Dane rozliczeniowe</h3>
+                                <p className="text-slate-400 text-xs leading-relaxed">Wypełnij formularz certyfikowany przez operatora Stripe. Rachunek zostanie wygenerowany na podane dane.</p>
                             </div>
-                        ) : (isInitLoading || !clientSecret || !publishableKey) ? (
-                            <div className="flex flex-col items-center justify-center gap-4 relative z-10 h-full m-auto w-full">
-                                {/* Skeleton Loader matching the form structure roughly */}
-                                <div className="w-full space-y-4 animate-pulse opacity-40">
-                                    <div className="h-4 bg-white/20 rounded w-1/3 mb-6"></div>
-                                    <div className="space-y-2">
-                                        <div className="h-[40px] bg-white/10 rounded-lg w-full"></div>
-                                        <div className="h-[40px] bg-white/10 rounded-lg w-full"></div>
-                                        <div className="h-[200px] bg-white/10 rounded-lg w-full mt-4"></div>
-                                    </div>
-                                    <div className="h-12 bg-red-500/30 rounded-lg w-full mt-6"></div>
-                                </div>
-                                <div className="absolute inset-0 flex flex-col items-center justify-center backdrop-blur-sm bg-[#0a0a0c]/50 rounded-xl">
-                                    <div className="relative mb-3">
-                                        <div className="absolute inset-0 bg-red-500/20 blur-xl rounded-full animate-pulse" />
-                                        <Loader2 className="animate-spin text-red-500 relative z-10" size={28} />
-                                    </div>
-                                    <p className="text-slate-400 text-[9px] tracking-[0.15em] uppercase font-bold text-center">Inicjalizacja środowiska<br />Stripe</p>
-                                </div>
+                            <div className="flex-1">
+                                <StripeContainer
+                                    publishableKey={publishableKey}
+                                    mode="subscription"
+                                    amount={displayPrice}
+                                    currency="pln"
+                                >
+                                    <CheckoutForm planId={planKey} />
+                                </StripeContainer>
                             </div>
-                        ) : (
-                            <div className="relative z-10 flex flex-col h-full opacity-0 animate-[fade-in_0.5s_ease-out_forwards]">
-                                <div className="mb-5">
-                                    <h3 className="text-lg font-bold text-white mb-1">Dane rozliczeniowe</h3>
-                                    <p className="text-slate-400 text-xs leading-relaxed">Wypełnij formularz certyfikowany przez operatora Stripe. Rachunek zostanie wygenerowany na podane dane.</p>
-                                </div>
-                                <div className="flex-1">
-                                    <StripeContainer clientSecret={clientSecret} publishableKey={publishableKey}>
-                                        <CheckoutForm planId={planKey} />
-                                    </StripeContainer>
-                                </div>
 
-                                {/* Bottom minimal trust badge inside Stripe block */}
-                                <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-center gap-2 opacity-50">
-                                    <Lock className="w-3 h-3 text-slate-500" />
-                                    <span className="text-[9px] uppercase tracking-widest text-slate-500 font-bold">Zabezpieczone 256-BIT SSL</span>
-                                </div>
+                            {/* Bottom minimal trust badge inside Stripe block */}
+                            <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-center gap-2 opacity-50">
+                                <Lock className="w-3 h-3 text-slate-500" />
+                                <span className="text-[9px] uppercase tracking-widest text-slate-500 font-bold">Zabezpieczone 256-BIT SSL</span>
                             </div>
-                        )}
+                        </div>
                     </div>
                 </div>
             </motion.div>

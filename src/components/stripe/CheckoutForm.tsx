@@ -9,9 +9,15 @@ interface CheckoutFormProps {
     planId: string;
 }
 
+import { useSearchParams } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
+
 export const CheckoutForm: React.FC<CheckoutFormProps> = ({ planId }) => {
     const stripe = useStripe();
     const elements = useElements();
+    const searchParams = useSearchParams();
+    const { user } = useAuth();
+
     const [message, setMessage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isStripeReady, setIsStripeReady] = useState(false);
@@ -20,8 +26,8 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ planId }) => {
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
-        email: '',
-        company: '',
+        email: user?.email || '',
+        company: user?.companyName || '',
         nip: '',
         address: '',
         city: '',
@@ -36,7 +42,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ planId }) => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!stripe || !elements) return;
+        if (!stripe || !elements || !user) return;
 
         // Basic validation for native fields
         if (!formData.firstName || !formData.lastName || !formData.email || !formData.address || !formData.city || !formData.zip) {
@@ -47,29 +53,51 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ planId }) => {
         setIsLoading(true);
         setMessage(null);
 
-        const returnUrl = `${window.location.origin}/provisioning?plan=${planId}`;
+        // 1. Trigger form validation and wallet collection
+        const { error: submitError } = await elements.submit();
+        if (submitError) {
+            setMessage(submitError.message ?? "Proszę poprawić dane płatności.");
+            setIsLoading(false);
+            return;
+        }
 
-        const { error } = await stripe.confirmPayment({
-            elements,
-            confirmParams: {
-                return_url: returnUrl,
-                payment_method_data: {
-                    billing_details: {
-                        name: `${formData.firstName} ${formData.lastName}`,
-                        email: formData.email,
-                        address: {
-                            line1: formData.address,
-                            city: formData.city,
-                            postal_code: formData.zip,
-                            country: 'PL', // Grabbing default as PL for now, can be expanded
-                        }
-                    }
-                }
-            },
-        });
+        try {
+            // 2. Create subscription & customer on the backend
+            const response = await fetch('/api/stripe/create-subscription', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    planId,
+                    userId: user.id,
+                    interval: searchParams.get('interval') || 'month',
+                    upsell: searchParams.get('upsell') || 'false',
+                    formData // passing the full billing details
+                }),
+            });
 
-        if (error) {
-            setMessage(error.message ?? "Wystąpił błąd płatności.");
+            const data = await response.json();
+
+            if (!response.ok || data.error) {
+                throw new Error(data.error || 'Błąd generowania subskrypcji.');
+            }
+
+            // 3. Confirm the payment intent using the returned clientSecret
+            const returnUrl = `${window.location.origin}/provisioning?plan=${planId}`;
+
+            const { error: confirmError } = await stripe.confirmPayment({
+                elements,
+                clientSecret: data.clientSecret,
+                confirmParams: {
+                    return_url: returnUrl,
+                },
+            });
+
+            if (confirmError) {
+                setMessage(confirmError.message ?? "Wystąpił błąd płatności po stronie banku.");
+            }
+        } catch (err: any) {
+            setMessage(err.message || "Błąd komunikacji z serwerem.");
+        } finally {
             setIsLoading(false);
         }
     };
