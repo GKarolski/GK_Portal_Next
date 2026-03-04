@@ -31,7 +31,11 @@ export default function PlanSelector({ mode }: PlanSelectorProps) {
         if (mode === "link") {
             const plan = plans.find((p) => p.id === planId);
             if (plan) {
-                router.push(plan.href);
+                let url = plan.href;
+                if (isYearly) {
+                    url += url.includes('?') ? '&interval=year' : '?interval=year';
+                }
+                router.push(url);
             }
         } else {
             // Mode "select" - trigger upsell modal if applicable
