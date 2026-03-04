@@ -18,6 +18,7 @@ function ChoosePlanContent() {
     const searchParams = useSearchParams();
     const preselectedPlan = searchParams.get('plan') as string | null;
     const interval = searchParams.get('interval') as string | null;
+    const [isRedirecting, setIsRedirecting] = useState(false);
 
     useEffect(() => {
         if (!isLoading) {
@@ -29,6 +30,7 @@ function ChoosePlanContent() {
             } else if (preselectedPlan) {
                 // If Expert is selected OR if they chose an annual plan, there is no upsell, go straight to checkout
                 if (preselectedPlan === "EXPERT" || interval === "year") {
+                    setIsRedirecting(true);
                     router.replace(`/checkout?plan=${preselectedPlan}&interval=${interval || 'month'}`);
                 }
             }
@@ -37,7 +39,7 @@ function ChoosePlanContent() {
 
     return (
         <div className="w-full flex-col justify-center flex py-12 md:py-20">
-            {isLoading || !user || preselectedPlan === "EXPERT" ? (
+            {isLoading || isRedirecting || !user || preselectedPlan === "EXPERT" ? (
                 <div className="flex h-[400px] items-center justify-center">
                     <Loader2 className="w-10 h-10 text-red-500 animate-spin" />
                 </div>

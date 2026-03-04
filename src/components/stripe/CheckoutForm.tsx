@@ -90,6 +90,13 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({ planId }) => {
                 clientSecret: data.clientSecret,
                 confirmParams: {
                     return_url: returnUrl,
+                    payment_method_data: {
+                        billing_details: {
+                            address: {
+                                country: 'PL',
+                            }
+                        }
+                    }
                 },
             });
 

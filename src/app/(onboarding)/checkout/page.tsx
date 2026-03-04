@@ -23,7 +23,7 @@ function CheckoutContent() {
     const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '';
 
     const isYearly = searchParams.get('interval') === 'year';
-    const displayPrice = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
+    const displayPrice = isYearly ? plan.yearlyPrice * 12 : plan.monthlyPrice;
 
     const fadeUp: Variants = {
         hidden: { opacity: 0, y: 20 },
@@ -62,10 +62,16 @@ function CheckoutContent() {
                                 </span>
                             </div>
 
-                            <div className="flex items-end gap-2 mb-6">
+                            <div className="flex items-end gap-2 mb-4">
                                 <div className="text-4xl font-black tracking-tighter text-white">{displayPrice}</div>
                                 <div className="text-lg text-slate-500 font-medium mb-1">zł <span className="text-xs font-normal">/{isYearly ? 'rok' : 'msc'}</span></div>
                             </div>
+
+                            {isYearly && (
+                                <div className="text-[10px] text-emerald-400 font-bold mb-5 bg-emerald-500/10 px-2.5 py-1.5 rounded-lg border border-emerald-500/20 inline-block uppercase tracking-wider">
+                                    Pakiet Roczny: Opłata jednorazowa (wychodzi {plan.yearlyPrice} zł / msc)
+                                </div>
+                            )}
 
                             <ul className="space-y-3 mb-1">
                                 {plan.features.map((f, i) => (
