@@ -13,11 +13,22 @@ interface StripeContainerProps {
     children: ReactNode;
 }
 
+let stripePromise: Promise<any | null>;
+
+const getStripe = (publishableKey: string) => {
+    if (!stripePromise && publishableKey) {
+        stripePromise = loadStripe(publishableKey);
+    }
+    return stripePromise;
+};
+
+// Eagerly initialize as soon as the module loads for maximum speed
+if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
+    getStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
+}
+
 const StripeContainer: React.FC<StripeContainerProps> = ({ clientSecret, publishableKey, mode, amount, currency, children }) => {
-    const stripePromise = useMemo(() => {
-        if (!publishableKey) return null;
-        return loadStripe(publishableKey);
-    }, [publishableKey]);
+    const activeStripePromise = getStripe(publishableKey);
 
     const options: any = {
         appearance: {
@@ -60,10 +71,10 @@ const StripeContainer: React.FC<StripeContainerProps> = ({ clientSecret, publish
         if (currency) options.currency = currency;
     }
 
-    if (!stripePromise) return null;
+    if (!activeStripePromise) return null;
 
     return (
-        <Elements stripe={stripePromise} options={options}>
+        <Elements stripe={activeStripePromise} options={options}>
             {children}
         </Elements>
     );
