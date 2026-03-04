@@ -9,7 +9,11 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export async function POST(req: Request) {
     try {
-        const { planId, email, userId, companyName, interval = 'month', upsell = 'false', formData } = await req.json();
+        const json = await req.json();
+        const { planId, userId, interval = 'month', upsell = 'false', formData } = json;
+        const email = json.email || formData?.email;
+        const companyName = json.companyName || formData?.company;
+
         console.log('[STRIPE DEBUG] Received:', { planId, email, userId, companyName, interval, upsell, hasFormData: !!formData });
 
         if (!userId || !email) {
