@@ -52,13 +52,16 @@ export default function RegisterPage() {
             setError(error.message);
             setIsLoading(false);
         } else {
-            // Get selected plan from URL
+            // Get selected plan and interval from URL
             const params = new URLSearchParams(window.location.search);
             const plan = params.get('plan');
+            const interval = params.get('interval');
 
             if (plan) {
                 // If plan is explicitly passed (from landing page click), redirect to choice anyway to trigger potential upsells
-                router.push(`/choose-plan?plan=${plan}`);
+                let nextUrl = `/choose-plan?plan=${plan}`;
+                if (interval) nextUrl += `&interval=${interval}`;
+                router.push(nextUrl);
             } else {
                 // Default flow: direct to the new selection page with upsells
                 router.push(`/choose-plan`);

@@ -17,6 +17,7 @@ function ChoosePlanContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const preselectedPlan = searchParams.get('plan') as string | null;
+    const interval = searchParams.get('interval') as string | null;
 
     useEffect(() => {
         if (!isLoading) {
@@ -25,12 +26,14 @@ function ChoosePlanContent() {
             } else if (user.isActive) {
                 // If they're already active, they shouldn't be picking a plan
                 router.replace("/dashboard");
-            } else if (preselectedPlan === "EXPERT") {
-                // Expert has no upsell, go straight to checkout
-                router.replace(`/ checkout ? plan = EXPERT & interval=month`);
+            } else if (preselectedPlan) {
+                // If Expert is selected OR if they chose an annual plan, there is no upsell, go straight to checkout
+                if (preselectedPlan === "EXPERT" || interval === "year") {
+                    router.replace(`/checkout?plan=${preselectedPlan}&interval=${interval || 'month'}`);
+                }
             }
         }
-    }, [user, isLoading, router, preselectedPlan]);
+    }, [user, isLoading, router, preselectedPlan, interval]);
 
     return (
         <div className="w-full flex-col justify-center flex py-12 md:py-20">
@@ -63,10 +66,10 @@ function ChoosePlanContent() {
                         animate="visible"
                         className="w-full relative z-10"
                     >
-                        {(preselectedPlan === "STARTER" || preselectedPlan === "PROFESSIONAL") ? (
+                        {(preselectedPlan === "STARTER" || preselectedPlan === "PROFESSIONAL") && interval !== "year" ? (
                             <UpsellModal
                                 basePlan={preselectedPlan as string}
-                                isYearly={false} // Assume monthly as default from landing, user can change later or we read it from params if implemented
+                                isYearly={false}
                                 inline
                                 onClose={() => { }}
                             />
