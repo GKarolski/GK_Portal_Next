@@ -35,12 +35,12 @@ function CheckoutContent() {
     }
 
     return (
-        <div className="w-full min-h-screen flex items-center justify-center overflow-auto px-4 py-8 md:py-12 bg-[#050505]">
+        <div className="w-full flex-1 flex items-center justify-center px-4 py-6 bg-[#050505]">
             <motion.div
                 initial="hidden"
                 animate="visible"
                 variants={fadeUp}
-                className="w-full max-w-5xl grid lg:grid-cols-[1fr_450px] gap-6 lg:gap-10 items-start"
+                className="w-full max-w-5xl grid lg:grid-cols-[1fr_450px] gap-6 items-center"
             >
                 {/* Order Summary (Left on Desktop) */}
                 <div className="flex flex-col space-y-6 lg:pr-4">
