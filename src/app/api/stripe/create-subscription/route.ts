@@ -72,7 +72,7 @@ export async function POST(req: Request) {
         if (formData) {
             console.log('[STRIPE DEBUG] Updating Customer with billing details from formData...');
             const fullName = `${formData.firstName} ${formData.lastName}`.trim();
-            const displayName = formData.company ? `${formData.company} (${fullName})` : fullName;
+            const displayName = formData.company ? formData.company : fullName;
 
             const addressParams = {
                 line1: formData.address,
@@ -84,9 +84,8 @@ export async function POST(req: Request) {
             await stripe.customers.update(customer.id, {
                 name: displayName,
                 address: addressParams,
-                shipping: {
-                    name: fullName,
-                    address: addressParams
+                invoice_settings: {
+                    custom_fields: formData.nip ? [{ name: 'NIP', value: formData.nip }] : []
                 }
             });
 
