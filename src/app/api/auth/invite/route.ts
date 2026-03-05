@@ -93,63 +93,39 @@ export async function POST(req: NextRequest) {
             console.log('[INVITE] New Org Created ID:', targetOrgId);
         }
 
-        // 4. Create User (invite or direct create)
-        console.log('[INVITE] Creating user for:', email);
+        // 4. Create User (silent, no Supabase email)
+        console.log('[INVITE] Creating user silently for:', email);
 
         let inviteResult;
-        let mailSent = true;
+        let mailSent = false;
         const origin = new URL(req.url).origin;
         const loginUrl = `${origin}/login`;
 
-        try {
-            const { data, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
-                data: {
-                    name: name,
-                    company_name: company,
-                    organization_id: targetOrgId,
-                    role: 'CLIENT',
-                    phone: details?.phone,
-                    nip: details?.nip,
-                    website: details?.website,
-                    admin_notes: details?.adminNotes,
-                    avatar_url: details?.avatar,
-                    role_in_org: orgId ? 'MEMBER' : 'OWNER'
-                },
-                redirectTo: loginUrl
-            });
-
-            if (error) throw error;
-            inviteResult = data;
-        } catch (inviteError: any) {
-            console.warn('[INVITE] SMTP/Invitation Error, falling back to direct create:', inviteError.message);
-
-            // Fallback: Directly create the user without sending an invite email immediately
-            const { data, error: createError } = await supabaseAdmin.auth.admin.createUser({
-                email: email,
-                password: Math.random().toString(36).slice(-12),
-                email_confirm: true,
-                user_metadata: {
-                    name: name,
-                    company_name: company,
-                    organization_id: targetOrgId,
-                    role: 'CLIENT',
-                    phone: details?.phone,
-                    nip: details?.nip,
-                    website: details?.website,
-                    admin_notes: details?.adminNotes,
-                    avatar_url: details?.avatar,
-                    role_in_org: orgId ? 'MEMBER' : 'OWNER'
-                }
-            });
-
-            if (createError) {
-                console.error('[INVITE] Direct Create Fallback failed:', createError);
-                return NextResponse.json({ error: 'Błąd podczas tworzenia użytkownika: ' + createError.message }, { status: 500 });
+        // Automatically create user, verify their email by default to skip Supabase's confirmation flow
+        const { data: createData, error: createError } = await supabaseAdmin.auth.admin.createUser({
+            email: email,
+            password: Math.random().toString(36).slice(-12) + "A1!", // Secure random password they will reset
+            email_confirm: true,
+            user_metadata: {
+                name: name,
+                company_name: company,
+                organization_id: targetOrgId,
+                role: 'CLIENT',
+                phone: details?.phone,
+                nip: details?.nip,
+                website: details?.website,
+                admin_notes: details?.adminNotes,
+                avatar_url: details?.avatar,
+                role_in_org: orgId ? 'MEMBER' : 'OWNER'
             }
+        });
 
-            inviteResult = data;
-            mailSent = false;
+        if (createError) {
+            console.error('[INVITE] User creation failed:', createError);
+            return NextResponse.json({ error: 'Błąd podczas tworzenia użytkownika: ' + createError.message }, { status: 500 });
         }
+
+        inviteResult = createData;
 
         // 5. Send branded invitation email via Resend (regardless of Supabase invite success)
         let resendMailSent = false;
