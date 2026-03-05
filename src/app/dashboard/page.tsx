@@ -201,7 +201,7 @@ export default function ClientDashboardPage() {
                         return;
                     }
                     router.push('/choose-plan');
-                } else if (!user.isActive) {
+                } else if (!user.isActive && user.role !== 'CLIENT') {
                     setIsCheckingOrg(true);
                     // Try to fetch fresh data just to be sure
                     const { data: profile } = await supabase
@@ -223,7 +223,11 @@ export default function ClientDashboardPage() {
         checkOrgStatus();
     }, [user, isAuthLoading, router]);
 
-    const isMissingOrgOrInactive = user && (!user.organizationId || !user.isActive);
+    // Klienci potrzebują tylko organizacji (podpinani przy zaproszeniu). Subskrypcje (isActive) dotyczą tylko szefów/adminów.
+    const isMissingOrgOrInactive = user && (
+        !user.organizationId ||
+        (user.role !== 'CLIENT' && !user.isActive)
+    );
 
     if (isAuthLoading || isCheckingOrg || isMissingOrgOrInactive) return (
         <div className="h-screen bg-gk-950 flex items-center justify-center">
