@@ -10,11 +10,9 @@ import { supabase } from '@/lib/supabase';
 import { provisionInstance } from '@/actions/provisioning';
 
 const steps = [
-    { id: 'db', label: 'Konfiguracja bazy danych PostgreSQL...', icon: Database },
-    { id: 'auth', label: 'Inicjalizacja Supabase RLS policies...', icon: Shield },
-    { id: 'storage', label: 'Tworzenie kontenerów na pliki (Storage)...', icon: Server },
-    { id: 'domain', label: 'Aliasing domeny i certyfikatów SSL...', icon: Globe },
-    { id: 'done', label: 'Finalizacja konfiguracji...', icon: Sparkles }
+    { id: 'instance', label: 'Budowa Bezpiecznej Instancji...', icon: Server },
+    { id: 'workspace', label: 'Konfiguracja Przestrzeni Roboczej...', icon: Database },
+    { id: 'ai', label: 'Aktywacja Modułów Sztucznej Inteligencji...', icon: Sparkles }
 ];
 
 function ProvisioningContent() {
@@ -59,7 +57,7 @@ function ProvisioningContent() {
 
                 setCompletedSteps(prev => [...prev, currentStep]);
                 setCurrentStep(prev => prev + 1);
-            }, 1000 + Math.random() * 1000);
+            }, 1500 + Math.random() * 1500); // Slower, more satisfying 3-step delay
             return () => clearTimeout(timer);
         } else if (isProvisioned) {
             setTimeout(async () => {
@@ -119,22 +117,40 @@ function ProvisioningContent() {
                             return (
                                 <motion.div
                                     key={step.id}
-                                    initial={{ x: -10, opacity: 0 }}
-                                    animate={{ x: 0, opacity: isActive || isCompleted ? 1 : 0.2 }}
-                                    className="flex items-center justify-between"
+                                    initial={{ x: -20, opacity: 0 }}
+                                    animate={{
+                                        x: 0,
+                                        opacity: isActive || isCompleted ? 1 : 0.3,
+                                        scale: isActive ? 1.02 : 1
+                                    }}
+                                    transition={{ duration: 0.5, ease: "easeOut" }}
+                                    className={`flex items-center justify-between p-4 rounded-2xl border transition-all duration-500 ${isActive ? 'bg-white/5 border-white/10 shadow-[0_0_30px_rgba(255,255,255,0.05)]' : isCompleted ? 'bg-transparent border-transparent' : 'bg-transparent border-transparent'}`}
                                 >
                                     <div className="flex items-center gap-4">
-                                        <div className={`p-2 rounded-lg ${isCompleted ? 'bg-emerald-500/10 text-emerald-500' : isActive ? 'bg-accent-red/10 text-accent-red' : 'bg-white/5 text-slate-600'}`}>
-                                            <Icon size={18} />
+                                        <div className={`p-3 rounded-xl transition-colors duration-500 ${isCompleted ? 'bg-emerald-500/20 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)]' : isActive ? 'bg-accent-red/20 text-accent-red shadow-[0_0_15px_rgba(239,68,68,0.2)]' : 'bg-white/5 text-slate-600'}`}>
+                                            <Icon size={20} className={isActive ? 'animate-pulse' : ''} />
                                         </div>
-                                        <span className={`text-sm font-medium ${isCompleted ? 'text-slate-100' : isActive ? 'text-white' : 'text-slate-600'}`}>
-                                            {step.label}
-                                        </span>
+                                        <div className="flex flex-col">
+                                            <span className={`text-base font-bold transition-colors duration-500 ${isCompleted ? 'text-white' : isActive ? 'text-white' : 'text-slate-500'}`}>
+                                                {step.label}
+                                            </span>
+                                            {isActive && (
+                                                <motion.span
+                                                    initial={{ opacity: 0 }}
+                                                    animate={{ opacity: 1 }}
+                                                    className="text-xs text-accent-red font-medium"
+                                                >
+                                                    Przetwarzanie...
+                                                </motion.span>
+                                            )}
+                                        </div>
                                     </div>
                                     {isCompleted ? (
-                                        <CheckCircle2 size={16} className="text-emerald-500" />
+                                        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 200, damping: 15 }}>
+                                            <CheckCircle2 size={24} className="text-emerald-500 drop-shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+                                        </motion.div>
                                     ) : isActive ? (
-                                        <Loader2 size={16} className="text-accent-red animate-spin" />
+                                        <Loader2 size={20} className="text-accent-red animate-spin" />
                                     ) : null}
                                 </motion.div>
                             );
