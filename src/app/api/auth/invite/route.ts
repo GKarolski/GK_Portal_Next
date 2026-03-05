@@ -91,31 +91,33 @@ export async function POST(req: NextRequest) {
         const origin = new URL(req.url).origin;
         const loginUrl = `${origin}/login`;
 
-        // Automatically create user, verify their email by default to skip Supabase's confirmation flow
-        const { data: createData, error: createError } = await supabaseAdmin.auth.admin.createUser({
+        // Automatically create user via generateLink to get a secure invite token
+        const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+            type: 'invite',
             email: email,
-            password: Math.random().toString(36).slice(-12) + "A1!", // Secure random password they will reset
-            email_confirm: true,
-            user_metadata: {
-                name: name,
-                company_name: company,
-                organization_id: targetOrgId,
-                role: 'CLIENT',
-                phone: details?.phone,
-                nip: details?.nip,
-                website: details?.website,
-                admin_notes: details?.adminNotes,
-                avatar_url: details?.avatar,
-                role_in_org: orgId ? 'MEMBER' : 'OWNER'
+            options: {
+                data: {
+                    name: name,
+                    company_name: company,
+                    organization_id: targetOrgId,
+                    role: 'CLIENT',
+                    phone: details?.phone,
+                    nip: details?.nip,
+                    website: details?.website,
+                    admin_notes: details?.adminNotes,
+                    avatar_url: details?.avatar,
+                    role_in_org: orgId ? 'MEMBER' : 'OWNER'
+                }
             }
         });
 
-        if (createError) {
-            console.error('[INVITE] User creation failed:', createError);
-            return NextResponse.json({ error: 'Błąd podczas tworzenia użytkownika: ' + createError.message }, { status: 500 });
+        if (linkError) {
+            console.error('[INVITE] User creation (generateLink) failed:', linkError);
+            return NextResponse.json({ error: 'Błąd podczas generowania linku: ' + linkError.message }, { status: 500 });
         }
 
-        inviteResult = createData;
+        inviteResult = linkData;
+        const secureInviteUrl = linkData.properties?.action_link || loginUrl;
 
         // 5. Send branded invitation email via Resend (regardless of Supabase invite success)
         let resendMailSent = false;
@@ -125,7 +127,7 @@ export async function POST(req: NextRequest) {
                 const emailHtml = await render(React.createElement(InvitationEmail, {
                     recipientName: name,
                     companyName: company,
-                    inviteUrl: loginUrl,
+                    inviteUrl: secureInviteUrl,
                     isNewOrg: isNewOrg,
                 }));
 
@@ -150,7 +152,7 @@ export async function POST(req: NextRequest) {
             console.warn('[INVITE] RESEND_API_KEY not set, skipping branded email');
         }
 
-        console.log('[INVITE] Client operational. Supabase mail:', mailSent, 'Resend mail:', resendMailSent, 'User ID:', inviteResult.user.id);
+        console.log('[INVITE] Client operational. Supabase mail:', mailSent, 'Resend mail:', resendMailSent, 'User ID:', inviteResult.user?.id || 'N/A');
 
         return NextResponse.json({
             success: true,

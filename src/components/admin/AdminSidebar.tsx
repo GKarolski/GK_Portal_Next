@@ -62,19 +62,19 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                         return clients
                             .filter(c => c.role !== 'ADMIN')
                             .map(client => {
-                                // If no organizationId, we treat the client as their own organization/individual
-                                const orgId = client.organizationId || `INDIVIDUAL-${client.id}`;
-                                if (processedOrgs.has(orgId)) return null;
-                                processedOrgs.add(orgId);
+                                // Group by companyName, fallback to individual ID
+                                const groupId = client.companyName ? `COMPANY-${client.companyName}` : `INDIVIDUAL-${client.id}`;
+                                if (processedOrgs.has(groupId)) return null;
+                                processedOrgs.add(groupId);
 
-                                const orgMembers = client.organizationId
-                                    ? clients.filter(c => c.organizationId === client.organizationId)
+                                const orgMembers = client.companyName
+                                    ? clients.filter(c => c.companyName === client.companyName)
                                     : [client];
 
-                                const isSelected = selectedClientId === (client.organizationId || client.id);
+                                const isSelected = selectedClientId === (client.companyName ? groupId : client.id);
 
                                 return (
-                                    <div key={orgId} className="flex flex-col gap-1 group">
+                                    <div key={groupId} className="flex flex-col gap-1 group">
                                         <div
                                             className={`relative flex items-center gap-2 w-full p-3 rounded-2xl transition-all cursor-pointer group/row ${isSelected ? 'bg-white/5 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
                                             onClick={() => {
@@ -82,7 +82,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                                                     setSelectedClientId('ALL');
                                                     setActiveFolderId(null);
                                                 } else {
-                                                    setSelectedClientId(orgId);
+                                                    setSelectedClientId(client.companyName ? groupId : client.id);
                                                     setActiveFolderId(null);
                                                 }
                                             }}
@@ -115,18 +115,18 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                                                     <button
                                                         onClick={(e) => {
                                                             e.stopPropagation();
-                                                            setOpenMenuId(openMenuId === orgId ? null : orgId);
+                                                            setOpenMenuId(openMenuId === groupId ? null : groupId);
                                                         }}
-                                                        className={`p-1.5 rounded-lg transition-colors ${openMenuId === orgId ? 'text-white bg-white/10' : 'text-slate-400 hover:text-white hover:bg-white/10'}`}
+                                                        className={`p-1.5 rounded-lg transition-colors ${openMenuId === groupId ? 'text-white bg-white/10' : 'text-slate-400 hover:text-white hover:bg-white/10'}`}
                                                         title="Ustawienia"
                                                     >
                                                         <Settings size={14} />
                                                     </button>
 
-                                                    {openMenuId === orgId && (
+                                                    {openMenuId === groupId && (
                                                         <div className="absolute right-0 top-full mt-1 w-48 bg-gk-900 border border-white/10 rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
                                                             <button
-                                                                onClick={(e) => { e.stopPropagation(); onAddMember(orgId, client.companyName || client.name); setOpenMenuId(null); }}
+                                                                onClick={(e) => { e.stopPropagation(); onAddMember(client.organizationId || '', client.companyName || client.name); setOpenMenuId(null); }}
                                                                 className="w-full text-left px-4 py-3 text-xs font-bold text-slate-300 hover:text-white hover:bg-white/5 flex items-center gap-2"
                                                             >
                                                                 <UserPlus size={14} /> Dodaj pracownika
@@ -139,7 +139,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                                                             </button>
                                                         </div>
                                                     )}
-                                                    {openMenuId === client.organizationId && <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setOpenMenuId(null); }} />}
+                                                    {openMenuId === groupId && <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setOpenMenuId(null); }} />}
                                                 </div>
                                             </div>
                                         </div>
