@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import { resend, EMAIL_FROM } from '@/lib/email';
 import { InvitationEmail } from '@/emails/InvitationEmail';
 import React from 'react';
+import { render } from '@react-email/render';
 
 export async function POST(req: NextRequest) {
     try {
@@ -121,16 +122,18 @@ export async function POST(req: NextRequest) {
         if (process.env.RESEND_API_KEY) {
             try {
                 console.log('[INVITE] Sending branded email via Resend to:', email);
+                const emailHtml = await render(React.createElement(InvitationEmail, {
+                    recipientName: name,
+                    companyName: company,
+                    inviteUrl: loginUrl,
+                    isNewOrg: isNewOrg,
+                }));
+
                 const { error: resendError } = await resend.emails.send({
                     from: EMAIL_FROM,
                     to: email,
                     subject: `Zaproszenie do GK Portal — ${company}`,
-                    react: React.createElement(InvitationEmail, {
-                        recipientName: name,
-                        companyName: company,
-                        inviteUrl: loginUrl,
-                        isNewOrg: isNewOrg,
-                    }),
+                    html: emailHtml,
                 });
 
                 if (resendError) {
