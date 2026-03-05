@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
         // 2. Check Admin Role (with Metadata Fallback)
         const { data: profile, error: profileError } = await supabaseAdmin
             .from('profiles')
-            .select('role')
+            .select('role, organization_id')
             .eq('id', user.id)
             .single();
 
@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
 
         // Użyj organizacji Admina jako "Workspace", do którego trafia Klient
         if (!targetOrgId) {
-            targetOrgId = adminProfile.organization_id;
+            targetOrgId = profile?.organization_id || user.user_metadata?.organization_id;
             console.log('[INVITE] Przypisano klienta do Workspace Admina:', targetOrgId);
         }
 
