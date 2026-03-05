@@ -72,13 +72,13 @@ DROP POLICY IF EXISTS "Tickets update isolation" ON public.tickets;
 DROP POLICY IF EXISTS "Tickets delete isolation" ON public.tickets;
 
 CREATE POLICY "Tickets select isolation" ON public.tickets FOR SELECT
-USING (organization_id = public.user_org_id());
+USING (organization_id = public.user_org_id() AND (public.is_admin() OR created_by_user_id = auth.uid() OR client_id = auth.uid()));
 
 CREATE POLICY "Tickets insert isolation" ON public.tickets FOR INSERT
-WITH CHECK (organization_id = public.user_org_id());
+WITH CHECK (organization_id = public.user_org_id() AND (public.is_admin() OR created_by_user_id = auth.uid()));
 
 CREATE POLICY "Tickets update isolation" ON public.tickets FOR UPDATE
-USING (organization_id = public.user_org_id());
+USING (organization_id = public.user_org_id() AND (public.is_admin() OR created_by_user_id = auth.uid() OR client_id = auth.uid()));
 
 CREATE POLICY "Tickets delete isolation" ON public.tickets FOR DELETE
 USING (organization_id = public.user_org_id() AND public.is_admin());
@@ -107,7 +107,7 @@ DROP POLICY IF EXISTS "Documents insert isolation" ON public.client_documents;
 DROP POLICY IF EXISTS "Documents manage isolation" ON public.client_documents;
 
 CREATE POLICY "Documents select isolation" ON public.client_documents FOR SELECT
-USING (organization_id = public.user_org_id());
+USING (organization_id = public.user_org_id()); -- W razie potrzeby można tu dodać sprawdzanie ownera pliku, dla uproszczenia Klienci widzą dokumenty we wspólnym folderze firmy
 
 CREATE POLICY "Documents insert isolation" ON public.client_documents FOR INSERT
 WITH CHECK (organization_id = public.user_org_id());

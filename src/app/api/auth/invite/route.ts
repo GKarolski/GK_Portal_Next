@@ -74,23 +74,12 @@ export async function POST(req: NextRequest) {
         }
 
         let targetOrgId = orgId;
-        const isNewOrg = !orgId;
+        const isNewOrg = false; // Nigdy nie tworzymy nowej organizacji dla klienta w multi-tenant
 
-        // Create new organization if none provided
+        // Użyj organizacji Admina jako "Workspace", do którego trafia Klient
         if (!targetOrgId) {
-            console.log('[INVITE] Creating new organization:', company);
-            const { data: newOrg, error: orgError } = await supabaseAdmin
-                .from('organizations')
-                .insert({ name: company })
-                .select()
-                .single();
-
-            if (orgError) {
-                console.error('[INVITE] Org Creation Error:', orgError);
-                return NextResponse.json({ error: 'Błąd podczas tworzenia organizacji' }, { status: 500 });
-            }
-            targetOrgId = newOrg.id;
-            console.log('[INVITE] New Org Created ID:', targetOrgId);
+            targetOrgId = adminProfile.organization_id;
+            console.log('[INVITE] Przypisano klienta do Workspace Admina:', targetOrgId);
         }
 
         // 4. Create User (silent, no Supabase email)
