@@ -117,7 +117,13 @@ export async function POST(req: NextRequest) {
         }
 
         inviteResult = linkData;
-        const secureInviteUrl = linkData.properties?.action_link || loginUrl;
+
+        // Zamiast wysyłać link kierujący do domeny supabase.co (z action_link),
+        // używamy naszego wbudowanego tokena by skierować go na naszą stronę ustawiania hasła.
+        const tokenHash = linkData.properties?.hashed_token;
+        const secureInviteUrl = tokenHash
+            ? `${origin}/setup-password?token=${tokenHash}`
+            : (linkData.properties?.action_link || loginUrl);
 
         // 5. Send branded invitation email via Resend (regardless of Supabase invite success)
         let resendMailSent = false;
