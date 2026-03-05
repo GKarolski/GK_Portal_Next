@@ -101,13 +101,6 @@ function ProvisioningContent() {
 
                 {/* Progress Card */}
                 <div className="w-full bg-[#0a0a0a]/80 backdrop-blur-3xl border border-white/5 rounded-3xl p-8 relative overflow-hidden">
-                    {/* Animated Scanning Line */}
-                    <motion.div
-                        animate={{ top: ['0%', '100%', '0%'] }}
-                        transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                        className="absolute left-0 right-0 h-px bg-accent-red/20 z-0 pointer-events-none"
-                    />
-
                     <div className="space-y-6 relative z-10">
                         {steps.map((step, index) => {
                             const isCompleted = completedSteps.includes(index);
