@@ -23,16 +23,16 @@ export async function POST(req: Request) {
         // 1. Resolve Price ID
         const priceMap: Record<string, any> = {
             'STARTER': {
-                'month': 'price_1T2uHHJQcFY2PeiPuSLNImIK', // replace with actual
-                'year': 'price_1T2uHHJQcFY2PeiPuSLNImIK', // replace with actual
+                'month': 'price_1T2uHHJQcFY2PeiPuSLNImIK', // default monthly
+                'year': 'price_1T2uHyJQcFY2PeiPwwGZXuwy', // provided by user
             },
             'PROFESSIONAL': { // Formerly STANDARD
-                'month': 'price_1T2uJKJQcFY2PeiPqdpnw4tg', // replace with actual
-                'year': 'price_1T2uJKJQcFY2PeiPqdpnw4tg', // replace with actual
+                'month': 'price_1T2uJKJQcFY2PeiPqdpnw4tg', // default monthly
+                'year': 'price_1T2uLiJQcFY2PeiPgm1TBJeX', // provided by user
             },
             'EXPERT': { // Formerly AGENCY
-                'month': 'price_1T2uMFJQcFY2PeiPEcCqha2w', // replace with actual
-                'year': 'price_1T2uMFJQcFY2PeiPEcCqha2w', // replace with actual
+                'month': 'price_1T2uMFJQcFY2PeiPEcCqha2w', // default monthly
+                'year': 'price_1T2uQbJQcFY2PeiPUzsizjpF', // provided by user
             },
             // Discounted Upsell Prices
             'UPSELL_PROFESSIONAL': {

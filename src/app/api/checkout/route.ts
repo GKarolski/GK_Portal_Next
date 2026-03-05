@@ -10,16 +10,16 @@ export async function POST(req: Request) {
         // Map containing Stripe price IDs for different plans, intervals, and promos
         const priceMap: Record<string, any> = {
             'STARTER': {
-                'month': 'price_1T2uHHJQcFY2PeiPuSLNImIK', // replace with actual
-                'year': 'price_1T2uHHJQcFY2PeiPuSLNImIK', // replace with actual
+                'month': 'price_1T2uHHJQcFY2PeiPuSLNImIK', // default monthly
+                'year': 'price_1T2uHyJQcFY2PeiPwwGZXuwy', // provided by user
             },
             'PROFESSIONAL': {
-                'month': 'price_1T2uJKJQcFY2PeiPqdpnw4tg', // replace with actual
-                'year': 'price_1T2uJKJQcFY2PeiPqdpnw4tg', // replace with actual
+                'month': 'price_1T2uJKJQcFY2PeiPqdpnw4tg', // default monthly
+                'year': 'price_1T2uLiJQcFY2PeiPgm1TBJeX', // provided by user
             },
             'EXPERT': {
-                'month': 'price_1T2uMFJQcFY2PeiPEcCqha2w', // replace with actual
-                'year': 'price_1T2uMFJQcFY2PeiPEcCqha2w', // replace with actual
+                'month': 'price_1T2uMFJQcFY2PeiPEcCqha2w', // default monthly
+                'year': 'price_1T2uQbJQcFY2PeiPUzsizjpF', // provided by user
             },
             // Discounted Upsell Prices
             'UPSELL_PROFESSIONAL': {

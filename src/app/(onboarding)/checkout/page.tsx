@@ -62,9 +62,16 @@ function CheckoutContent() {
                                 </span>
                             </div>
 
-                            <div className="flex items-end gap-2 mb-4">
-                                <div className="text-4xl font-black tracking-tighter text-white">{displayPrice}</div>
-                                <div className="text-lg text-slate-500 font-medium mb-1">zł <span className="text-xs font-normal">/{isYearly ? 'rok' : 'msc'}</span></div>
+                            <div className="flex flex-col mb-4">
+                                {isYearly && (
+                                    <div className="text-xl text-slate-500 font-medium line-through decoration-red-500/50 decoration-2 -mb-2">
+                                        {plan.monthlyPrice * 12} zł
+                                    </div>
+                                )}
+                                <div className="flex items-end gap-2">
+                                    <div className="text-4xl font-black tracking-tighter text-white">{displayPrice}</div>
+                                    <div className="text-lg text-slate-500 font-medium mb-1">zł <span className="text-xs font-normal">/{isYearly ? 'rok' : 'msc'}</span></div>
+                                </div>
                             </div>
 
                             {isYearly && (
